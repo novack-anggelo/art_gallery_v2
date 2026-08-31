@@ -1,6 +1,7 @@
 package com.novack.artgalleryv2.core.network.di
 
 import com.novack.artgalleryv2.BuildConfig
+import com.novack.artgalleryv2.core.network.api.ArtInstituteApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -23,6 +24,7 @@ val networkModule = module {
     singleOf(::provideJson)
     singleOf(::provideOkHttpClient)
     singleOf(::provideRetrofit)
+    singleOf(::provideArtInstituteApi)
 }
 
 internal fun provideJson(): Json =
@@ -66,3 +68,7 @@ internal fun provideRetrofit(
             json.asConverterFactory(jsonMediaType),
         )
         .build()
+
+internal fun provideArtInstituteApi(
+    retrofit: Retrofit,
+): ArtInstituteApi = retrofit.create(ArtInstituteApi::class.java)
