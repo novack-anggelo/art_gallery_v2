@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -53,4 +54,35 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Dependency injection
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
+// Networking
+    implementation(platform(libs.retrofit.bom))
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp.logging)
+
+// Lifecycle and navigation
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
+
+// Pagination
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
+// Image loading
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+// Local tests
+    testImplementation(libs.koin.test.junit4)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.okhttp.mockwebserver)
 }
