@@ -1,6 +1,6 @@
-package com.novack.artgalleryv2.core.network.di
+package com.novack.artgalleryv2.core.data.di
 
-import com.novack.artgalleryv2.core.network.api.ArtInstituteApi
+import com.novack.artgalleryv2.core.data.api.ArtInstituteApi
 import org.junit.Test
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.koinApplication

@@ -1,6 +1,6 @@
-package com.novack.artgalleryv2.core.network.api
+package com.novack.artgalleryv2.core.data.api
 
-import com.novack.artgalleryv2.core.network.model.ArtworkPageDto
+import com.novack.artgalleryv2.core.data.model.ArtworkPageDto
 import retrofit2.http.GET
 import retrofit2.http.Query
 

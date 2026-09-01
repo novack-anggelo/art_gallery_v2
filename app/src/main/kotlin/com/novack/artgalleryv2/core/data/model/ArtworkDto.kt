@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.core.network.model
+package com.novack.artgalleryv2.core.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
