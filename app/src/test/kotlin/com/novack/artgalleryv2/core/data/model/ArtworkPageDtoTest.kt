@@ -1,6 +1,6 @@
-package com.novack.artgalleryv2.core.network.model
+package com.novack.artgalleryv2.core.data.model
 
-import com.novack.artgalleryv2.core.network.di.provideJson
+import com.novack.artgalleryv2.core.data.di.provideJson
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
