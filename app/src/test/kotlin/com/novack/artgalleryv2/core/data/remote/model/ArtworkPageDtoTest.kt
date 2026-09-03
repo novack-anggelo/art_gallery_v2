@@ -1,6 +1,7 @@
-package com.novack.artgalleryv2.core.data.model
+package com.novack.artgalleryv2.core.data.remote.model
 
-import com.novack.artgalleryv2.core.data.di.provideJson
+import com.novack.artgalleryv2.core.data.remote.di.provideJson
+import com.novack.artgalleryv2.core.data.remote.model.ArtworkPageDto
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

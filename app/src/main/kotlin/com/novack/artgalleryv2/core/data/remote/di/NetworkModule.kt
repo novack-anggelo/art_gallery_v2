@@ -1,7 +1,7 @@
-package com.novack.artgalleryv2.core.data.di
+package com.novack.artgalleryv2.core.data.remote.di
 
 import com.novack.artgalleryv2.BuildConfig
-import com.novack.artgalleryv2.core.data.api.ArtInstituteApi
+import com.novack.artgalleryv2.core.data.remote.api.ArtInstituteApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
