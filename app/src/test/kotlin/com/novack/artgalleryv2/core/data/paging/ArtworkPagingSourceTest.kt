@@ -1,12 +1,8 @@
 package com.novack.artgalleryv2.core.data.paging
 
 import androidx.paging.PagingSource
-import com.novack.artgalleryv2.core.data.remote.api.ArtInstituteApi
-import com.novack.artgalleryv2.core.data.remote.model.ApiConfigDto
-import com.novack.artgalleryv2.core.data.remote.model.ArtworkPageDto
-import com.novack.artgalleryv2.core.data.remote.model.ArtworkSummaryDto
-import com.novack.artgalleryv2.core.data.remote.model.PaginatedResponseDto
-import com.novack.artgalleryv2.core.data.remote.model.PaginationDto
+import com.novack.artgalleryv2.core.data.fakes.FakeArtInstituteApi
+import com.novack.artgalleryv2.core.data.fakes.artworkPage
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -91,62 +87,5 @@ class ArtworkPagingSourceTest {
                 >(result)
 
         assertSame(expected, error.throwable)
-    }
-
-    private fun artworkPage(
-        currentPage: Int,
-        totalPages: Int,
-    ): ArtworkPageDto =
-        PaginatedResponseDto(
-            pagination = PaginationDto(
-                total = totalPages * ARTWORK_PAGE_SIZE,
-                limit = ARTWORK_PAGE_SIZE,
-                currentPage = currentPage,
-                totalPages = totalPages,
-            ),
-            data = listOf(
-                ArtworkSummaryDto(
-                    id = currentPage,
-                    title = "Artwork $currentPage",
-                    imageId = "image-$currentPage",
-                    isPublicDomain = true,
-                )
-            ),
-            config = ApiConfigDto(
-                iiifUrl = "https://www.artic.edu/iiif/2",
-            ),
-        )
-}
-
-private class FakeArtInstituteApi(
-    private val response: ArtworkPageDto? = null,
-    private val failure: Exception? = null,
-) : ArtInstituteApi {
-
-    var requestedPage: Int? = null
-        private set
-
-    var requestedLimit: Int? = null
-        private set
-
-    var requestedFields: String? = null
-        private set
-
-    var requestedRequiredField: String? = null
-        private set
-
-    override suspend fun getArtworks(
-        page: Int,
-        limit: Int,
-        fields: String,
-        requiredField: String,
-    ): ArtworkPageDto {
-        requestedPage = page
-        requestedLimit = limit
-        requestedFields = fields
-        requestedRequiredField = requiredField
-
-        failure?.let { throw it }
-        return checkNotNull(response)
     }
 }
