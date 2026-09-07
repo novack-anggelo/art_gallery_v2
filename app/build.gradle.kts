@@ -86,4 +86,5 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.paging.testing)
     testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.mockk)
 }
