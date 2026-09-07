@@ -4,7 +4,28 @@ Art Gallery is a portfolio Android app for discovering works from the Art Instit
 
 The app uses the public [Art Institute of Chicago API](https://api.artic.edu/docs/#introduction) and its [IIIF image service](https://api.artic.edu/docs/#iiif-image-api).
 
-> Status: early development. The current project contains the initial Jetpack Compose application shell. The first product milestone is planned below.
+> Status: Milestone 1 is in progress. The network and paginated listing data layers are implemented. The next step is the Discover ViewModel and its Koin registration, followed by the Compose gallery.
+
+## Learning workflow
+
+This is a developer-led portfolio project. The developer implements the application; Codex acts as a mentor by explaining tradeoffs, guiding small exercises, and reviewing the resulting code. Application implementation is not delegated to Codex. Unclear requirements must be clarified before proceeding. Documentation may be edited directly when requested.
+
+## Current progress
+
+Implemented in the repository:
+
+- Application startup and Koin network/data modules.
+- Core dependencies for networking, pagination, image loading, navigation, and testing.
+- Artwork listing API contract, response DTOs, and DTO-to-domain mapping.
+- `ArtworkSummary` and the `ArtworkRepository` contract.
+- `ArtworkPagingSource` and `NetworkArtworkRepository`.
+- Tests for the dependency graph, network configuration, deserialization, mapping, paging, and repository output.
+
+These entries describe code present in the repository, not a completed quality gate. Tests were inspected but not executed during the documentation review.
+
+The project is currently in implementation slice 3 (Discover), with its data layer in place. The detail data contract from slice 2 is still pending. The Compose application shell currently contains an empty `Scaffold`.
+
+The immediate exercise is to create `DiscoverViewModel`, inject `ArtworkRepository`, expose its paginated flow as a property using `cachedIn(viewModelScope)`, and register the ViewModel in a feature Koin module. After reviewing that step, connect the flow to Compose through `LazyPagingItems`, then add the adaptive grid, image loading, load states, retries, and state restoration.
 
 ## Product vision
 
@@ -59,7 +80,7 @@ Work will proceed in small vertical slices so the application remains buildable 
 4. **Details:** implement ID-based navigation, independent detail loading, metadata presentation, attribution, external links, and basic image zoom.
 5. **Quality gate:** add repository and ViewModel tests, Compose screen tests, accessibility checks, lint, formatting, and CI before declaring the milestone complete.
 
-Milestone 1 is complete when a fresh install can browse multiple pages, survive rotation and process recreation, open a detail by ID, recover from simulated failures, and pass the automated quality checks.
+Milestone 1 is complete when a fresh install can browse multiple pages, retain loaded pages and grid position across configuration changes without redundant reloads, restore screen context after system-initiated process death (network reloads are allowed), open a detail by ID, recover from simulated failures, and pass the automated quality checks. Persistent offline recovery belongs to Milestone 2.
 
 ### Milestone 2 — Offline and discovery
 
@@ -122,7 +143,7 @@ Compose UI → ViewModel → use case or repository contract
 Key rules:
 
 - UI renders immutable state and reports user actions.
-- ViewModels expose `StateFlow` and coordinate feature behavior.
+- ViewModels coordinate feature behavior and expose `StateFlow` for ordinary UI state. Paginated content is exposed as `Flow<PagingData<ArtworkSummary>>` with `cachedIn(viewModelScope)`; it does not need conversion to `StateFlow`. Paging load states drive pagination loading and error presentation.
 - Use cases are introduced for meaningful domain behavior, not as wrappers around every repository method.
 - Repository contracts shield features from network and database implementation details.
 - API DTOs and Room entities never leak into UI code.
@@ -171,7 +192,12 @@ The data layer will translate API pagination into Paging 3 keys. Listing and sea
 
 ### State restoration
 
-Navigation passes only stable identifiers. Feature state that must survive recreation is kept in `SavedStateHandle`, while cached data lives below the presentation layer. Returning from details must restore the previous grid position and loaded pages.
+Navigation passes only stable identifiers. Restoration has two distinct requirements in Milestone 1:
+
+- **Configuration changes:** retain loaded pages and grid position across rotation and light/dark theme changes. The Discover ViewModel caches the paginated flow with `cachedIn(viewModelScope)`. Recreating the UI must not restart requests for already loaded pages. Loading a new page when a larger viewport triggers prefetch is acceptable.
+- **System-initiated process death:** restore lightweight screen context using saved-state mechanisms, such as `SavedStateHandle` for ViewModel state and saveable Compose state for UI state. The ViewModel and its in-memory page cache do not survive process death, so reloading artwork from the API is allowed. Full artwork lists must not be stored in saved-state bundles.
+
+Returning from details while the Discover ViewModel remains alive must restore the previous grid position and reuse loaded pages. Persistent artwork caching and offline recovery will be added in Milestone 2 with Room and an explicit refresh policy.
 
 ### Errors
 
