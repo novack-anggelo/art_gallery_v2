@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">art_gallery_v2</string>
+    <string name="unknown_artist">Unknown artist</string>
+    <string name="artwork_artist_and_date">%1$s · %2$s</string>
 </resources>
