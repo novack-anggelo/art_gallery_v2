@@ -1,0 +1,86 @@
+package com.novack.artgalleryv2.ui.feature.discover.components
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.ColorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import coil3.compose.AsyncImage
+import com.novack.artgalleryv2.R
+import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.ui.theme.Spacing
+
+@Composable
+internal fun ArtworkCard(
+    artworkSummary: ArtworkSummary,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(onClick = onClick, modifier = modifier) {
+        Column(
+            modifier = Modifier.padding(Spacing.SizeM),
+            verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
+        ) {
+            AsyncImage(
+                model = artworkSummary.image.url,
+                contentDescription = artworkSummary.image.altText,
+                contentScale = ContentScale.Fit,
+                placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
+                error = painterResource(R.drawable.artwork_image_error),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+            )
+            ArtworkCardFooter(
+                title = artworkSummary.title,
+                artist = artworkSummary.artist,
+                dateDisplay = artworkSummary.dateDisplay,
+                mediumDisplay = artworkSummary.mediumDisplay,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ArtworkCardFooter(
+    title: String,
+    artist: String?,
+    dateDisplay: String?,
+    mediumDisplay: String?,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(Spacing.SizeXXS),
+    ) {
+        Text(text = title, style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = artworkMetadataText(artist, dateDisplay),
+            style = MaterialTheme.typography.bodySmall,
+        )
+        mediumDisplay?.let {
+            Text(text = it, style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+private fun artworkMetadataText(artist: String?, dateDisplay: String?): String {
+    val artistName = artist ?: stringResource(R.string.unknown_artist)
+    return if (dateDisplay == null) {
+        artistName
+    } else {
+        stringResource(R.string.artwork_artist_and_date, artistName, dateDisplay)
+    }
+}
