@@ -14,7 +14,7 @@ private const val STARTING_PAGE = 1
 private const val REQUIRED_IMAGE_FIELD = "image_id"
 
 private const val ARTWORK_SUMMARY_FIELDS =
-    "id,title,artist_title,date_display,image_id," +
+    "id,title,artist_title,date_display,medium_display,image_id," +
             "is_public_domain,thumbnail"
 
 internal class ArtworkPagingSource(

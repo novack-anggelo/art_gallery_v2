@@ -34,6 +34,7 @@ class ArtworkPageDtoTest {
             artwork.title,
         )
         assertEquals("Georges Seurat", artwork.artistTitle)
+        assertEquals("Oil on canvas", artwork.mediumDisplay)
         assertEquals(true, artwork.isPublicDomain)
         assertEquals(843, artwork.thumbnail?.width)
     }
@@ -51,6 +52,7 @@ class ArtworkPageDtoTest {
 
         assertNull(artwork.artistTitle)
         assertNull(artwork.dateDisplay)
+        assertNull(artwork.mediumDisplay)
         assertNull(artwork.imageId)
         assertNull(artwork.thumbnail)
         assertNull(artwork.isPublicDomain)

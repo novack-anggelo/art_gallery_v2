@@ -28,6 +28,7 @@ class ArtworkMappersTest {
                     title = "A Sunday on La Grande Jatte — 1884",
                     artistTitle = "Georges Seurat",
                     dateDisplay = "1884–86",
+                    mediumDisplay = "Oil on canvas",
                     imageId =
                         "2d484387-2509-5e8e-2c43-22f9981972eb",
                     isPublicDomain = true,
@@ -48,6 +49,8 @@ class ArtworkMappersTest {
 
         assertEquals(27992, artwork.id)
         assertEquals("Georges Seurat", artwork.artist)
+        assertEquals("1884–86", artwork.dateDisplay)
+        assertEquals("Oil on canvas", artwork.mediumDisplay)
         assertTrue(artwork.isPublicDomain)
         assertEquals(
             "https://www.artic.edu/iiif/2/" +
@@ -68,6 +71,7 @@ class ArtworkMappersTest {
             title = "Untitled",
             artistTitle = " ",
             dateDisplay = null,
+            mediumDisplay = " ",
             imageId = null,
             isPublicDomain = null,
             thumbnail = null,
@@ -87,6 +91,7 @@ class ArtworkMappersTest {
             title = "Untitled",
             artistTitle = " ",
             dateDisplay = null,
+            mediumDisplay = " ",
             imageId = "valid-image-id",
             isPublicDomain = null,
             thumbnail = null,
@@ -99,7 +104,8 @@ class ArtworkMappersTest {
         )
 
         assertNull(result.artist)
-        assertNull(result.date)
+        assertNull(result.dateDisplay)
+        assertNull(result.mediumDisplay)
         assertFalse(result.isPublicDomain)
         assertNull(result.image.altText)
         assertNull(result.image.aspectRatio)

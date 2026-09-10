@@ -22,7 +22,8 @@ internal fun ArtworkSummaryDto.toDomainOrNull(
         id = id,
         title = title,
         artist = artistTitle?.takeIf(String::isNotBlank),
-        date = dateDisplay?.takeIf(String::isNotBlank),
+        dateDisplay = dateDisplay?.takeIf(String::isNotBlank),
+        mediumDisplay = mediumDisplay?.takeIf(String::isNotBlank),
         image = image,
         isPublicDomain = isPublicDomain == true
     )

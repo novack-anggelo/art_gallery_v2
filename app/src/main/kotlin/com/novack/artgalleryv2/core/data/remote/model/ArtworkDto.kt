@@ -14,6 +14,8 @@ internal data class ArtworkSummaryDto(
     val artistTitle: String? = null,
     @SerialName("date_display")
     val dateDisplay: String? = null,
+    @SerialName("medium_display")
+    val mediumDisplay: String? = null,
     @SerialName("image_id")
     val imageId: String? = null,
     @SerialName("is_public_domain")
