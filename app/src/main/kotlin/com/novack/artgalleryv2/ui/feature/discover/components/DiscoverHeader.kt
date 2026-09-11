@@ -49,9 +49,16 @@ internal fun DiscoverHeader(
         derivedStateOf { state.collapsedFraction >= 0.5f }
     }
 
+    // Read measured sizes during composition so onSizeChanged schedules this effect again.
+    // Reading them only inside SideEffect leaves the initial, effectively unbounded limit.
+    val measuredLimit = if (expandedHeight > 0 && compactHeight > 0) {
+        (compactHeight - expandedHeight).coerceAtMost(0).toFloat()
+    } else {
+        null
+    }
+
     SideEffect {
-        if (expandedHeight > 0 && compactHeight > 0) {
-            val limit = (compactHeight - expandedHeight).coerceAtMost(0).toFloat()
+        measuredLimit?.let { limit ->
             if (state.heightOffsetLimit != limit) {
                 // Preserve expansion when font scale or available width changes.
                 val fraction = state.collapsedFraction
