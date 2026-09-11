@@ -60,7 +60,7 @@ internal fun ArtworkCardSkeleton(modifier: Modifier = Modifier) {
     // The screen announces loading once; decorative skeletons have no actions or semantics.
     Card(
         modifier = modifier.clearAndSetSemantics {},
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
             modifier = Modifier.padding(Spacing.SizeM),

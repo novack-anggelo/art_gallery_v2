@@ -70,9 +70,8 @@ internal fun DiscoverScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .systemBarsPadding()
-                .imePadding()
                 .consumeWindowInsets(innerPadding)
+                .imePadding()
                 .semantics {
                     if (isInitialLoading) {
                         stateDescription = loadingDescription
