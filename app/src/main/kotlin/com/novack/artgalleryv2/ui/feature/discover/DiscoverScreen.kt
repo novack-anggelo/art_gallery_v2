@@ -17,6 +17,14 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.paging.LoadState
+import com.novack.artgalleryv2.R
+import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCardSkeleton
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -46,6 +54,9 @@ internal fun DiscoverScreen(
         state = rememberTopAppBarState(),
     )
 
+    val isInitialLoading = artworks.loadState.refresh is LoadState.Loading && artworks.itemCount == 0
+    val loadingDescription = stringResource(R.string.discover_loading)
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -61,23 +72,35 @@ internal fun DiscoverScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding),
+                .consumeWindowInsets(innerPadding)
+                .semantics {
+                    if (isInitialLoading) {
+                        stateDescription = loadingDescription
+                        liveRegion = LiveRegionMode.Polite
+                    }
+                },
             contentPadding = PaddingValues(Spacing.SizeXS),
             verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
             horizontalArrangement = Arrangement.spacedBy(Spacing.SizeS),
         ) {
-            items(
-                count = artworks.itemCount,
-                key = artworks.itemKey { it.id }
-            ) { index ->
-                val artwork = artworks[index]
+            if (isInitialLoading) {
+                items(count = 3, key = { "discover-skeleton-$it" }, contentType = { "skeleton" }) {
+                    ArtworkCardSkeleton(modifier = Modifier.fillMaxWidth())
+                }
+            } else {
+                items(
+                    count = artworks.itemCount,
+                    key = artworks.itemKey { it.id }
+                ) { index ->
+                    val artwork = artworks[index]
 
-                artwork?.let {
-                    ArtworkCard(
-                        artworkSummary = it,
-                        onClick = { onArtworkClick(it.id) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    artwork?.let {
+                        ArtworkCard(
+                            artworkSummary = it,
+                            onClick = { onArtworkClick(it.id) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         }
