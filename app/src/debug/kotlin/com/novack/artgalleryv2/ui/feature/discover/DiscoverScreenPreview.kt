@@ -15,6 +15,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
+import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkPreviewProvider
 import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
@@ -67,6 +68,29 @@ private fun DiscoverScreenPreview() {
             Surface {
                 DiscoverScreen(artworks = artworks, onArtworkClick = {})
             }
+        }
+    }
+}
+
+@Preview(name = "Initial loading", showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+private fun DiscoverScreenLoadingPreview() {
+    val artworkFlow = remember {
+        flowOf(
+            PagingData.from<ArtworkSummary>(
+                data = emptyList(),
+                sourceLoadStates = LoadStates(
+                    refresh = LoadState.Loading,
+                    prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                    append = LoadState.NotLoading(endOfPaginationReached = true),
+                ),
+            )
+        )
+    }
+    val artworks = artworkFlow.collectAsLazyPagingItems()
+    Art_gallery_v2Theme {
+        Surface {
+            DiscoverScreen(artworks = artworks, onArtworkClick = {})
         }
     }
 }
