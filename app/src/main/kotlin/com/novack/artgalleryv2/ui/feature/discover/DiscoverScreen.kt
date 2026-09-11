@@ -18,11 +18,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.ui.feature.discover.components.DiscoverHeader
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCard
 import com.novack.artgalleryv2.ui.theme.Spacing
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+internal fun DiscoverRoute(
+    onArtworkClick: (Int) -> Unit,
+    viewModel: DiscoverViewModel = koinViewModel(),
+) {
+    val artworks = viewModel.artworks.collectAsLazyPagingItems()
+
+    DiscoverScreen(artworks = artworks, onArtworkClick = onArtworkClick)
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +54,7 @@ internal fun DiscoverScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             DiscoverHeader(state = scrollBehavior.state)
-        }
+        },
     ) { innerPadding ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(1), // TODO: change to adaptative when defined
