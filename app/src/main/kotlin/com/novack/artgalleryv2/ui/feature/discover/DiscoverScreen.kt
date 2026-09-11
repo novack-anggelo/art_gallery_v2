@@ -60,8 +60,6 @@ internal fun DiscoverScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .systemBarsPadding()
-            .imePadding()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             DiscoverHeader(state = scrollBehavior.state)
@@ -72,6 +70,8 @@ internal fun DiscoverScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .systemBarsPadding()
+                .imePadding()
                 .consumeWindowInsets(innerPadding)
                 .semantics {
                     if (isInitialLoading) {
