@@ -94,3 +94,24 @@ private fun DiscoverScreenLoadingPreview() {
         }
     }
 }
+
+@Preview(name = "Empty collection", showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+private fun DiscoverScreenEmptyPreview() {
+    val artworkFlow = remember {
+        flowOf(
+            PagingData.from<ArtworkSummary>(
+                data = emptyList(),
+                sourceLoadStates = LoadStates(
+                    refresh = LoadState.NotLoading(endOfPaginationReached = false),
+                    prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                    append = LoadState.NotLoading(endOfPaginationReached = true),
+                ),
+            )
+        )
+    }
+    val artworks = artworkFlow.collectAsLazyPagingItems()
+    Art_gallery_v2Theme {
+        DiscoverScreen(artworks = artworks, onArtworkClick = {})
+    }
+}

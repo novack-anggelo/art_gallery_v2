@@ -9,4 +9,7 @@
     <string name="retry">Retry</string>
     <string name="discover_error_title">Unable to load artworks</string>
     <string name="discover_error_subtitle">Please try again</string>
+    <string name="discover_empty_title">No artworks available</string>
+    <string name="discover_empty_subtitle">Pull down to refresh.</string>
+    <string name="discover_refresh_error">Unable to refresh artworks</string>
 </resources>
