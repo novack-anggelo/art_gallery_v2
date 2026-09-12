@@ -6,4 +6,7 @@
     <string name="discover_brand">ART GALLERY</string>
     <string name="discover_subtitle">Find a work that makes you pause.</string>
     <string name="discover_loading">Loading artworks</string>
+    <string name="retry">Retry</string>
+    <string name="discover_error_title">Unable to load artworks</string>
+    <string name="discover_error_subtitle">Please try again</string>
 </resources>
