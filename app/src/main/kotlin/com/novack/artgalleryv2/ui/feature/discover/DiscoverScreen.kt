@@ -1,5 +1,9 @@
 package com.novack.artgalleryv2.ui.feature.discover
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -10,9 +14,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -55,59 +69,94 @@ internal fun DiscoverScreen(
     )
 
     val refreshState = artworks.loadState.refresh
+    val snackbarHostState = remember { SnackbarHostState() }
+    var pullRequested by remember { mutableStateOf(false) }
+    val refreshErrorMessage = stringResource(R.string.discover_refresh_error)
+
+    // A new Loading → Error transition can show another snackbar after the next pull.
+    LaunchedEffect(refreshState) {
+        if (refreshState !is LoadState.Loading) pullRequested = false
+        if (refreshState is LoadState.Error && artworks.itemCount > 0) {
+            snackbarHostState.showSnackbar(message = refreshErrorMessage)
+        }
+    }
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+        },
         topBar = {
             DiscoverHeader(state = scrollBehavior.state)
         },
     ) { innerPadding ->
-        when {
-            artworks.itemCount > 0 -> {
-                LoadedState(
-                    innerPadding = innerPadding,
+        PullToRefreshBox(
+            isRefreshing = refreshState is LoadState.Loading &&
+                (artworks.itemCount > 0 || pullRequested),
+            onRefresh = {
+                if (refreshState !is LoadState.Loading) {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    pullRequested = true
+                    artworks.refresh()
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+                .imePadding(),
+        ) {
+            when {
+                artworks.itemCount > 0 -> LoadedState(
                     artworks = artworks,
                     onArtworkClick = onArtworkClick,
                 )
-            }
-
-            refreshState is LoadState.Loading -> {
-                InitialLoadingState(
-                    innerPadding = innerPadding,
-                )
-            }
-
-            refreshState is LoadState.Error -> {
-                ErrorScreen(
+                refreshState is LoadState.Loading && !pullRequested -> InitialLoadingState()
+                refreshState is LoadState.Error -> ErrorScreen(
                     title = stringResource(R.string.discover_error_title),
                     subtitle = stringResource(R.string.discover_error_subtitle),
                     onRetry = { artworks.retry() },
+                    modifier = Modifier.fillMaxSize().padding(Spacing.SizeM),
                 )
-            }
-
-            else -> {
-                // Estado vacío: lo trabajaremos después.
+                else -> DiscoverEmptyState()
             }
         }
-
     }
 }
 
 @Composable
-private fun InitialLoadingState(
-    innerPadding: PaddingValues,
-) {
+private fun DiscoverEmptyState() {
+    // Even empty content needs a scrollable child to dispatch pull gestures.
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        ErrorScreen(
+            title = stringResource(R.string.discover_empty_title),
+            subtitle = stringResource(R.string.discover_empty_subtitle),
+            onRetry = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
+                .padding(Spacing.SizeL),
+        )
+    }
+}
+
+@Composable
+private fun InitialLoadingState() {
     val loadingDescription = stringResource(R.string.discover_loading)
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(1), // TODO: change to adaptative when defined
         modifier = Modifier
             .fillMaxSize()
-            .padding(innerPadding)
-            .consumeWindowInsets(innerPadding)
-            .imePadding()
             .semantics {
                 stateDescription = loadingDescription
                 liveRegion = LiveRegionMode.Polite
@@ -128,17 +177,12 @@ private fun InitialLoadingState(
 
 @Composable
 private fun LoadedState(
-    innerPadding: PaddingValues,
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(1), // TODO: change to adaptative when defined
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
-            .consumeWindowInsets(innerPadding)
-            .imePadding(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.SizeXS),
         verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
         horizontalArrangement = Arrangement.spacedBy(Spacing.SizeS),
