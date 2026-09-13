@@ -1,6 +1,7 @@
 package com.novack.artgalleryv2.ui.feature.discover
 
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -29,6 +32,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -201,6 +205,41 @@ private fun LoadedState(
                 )
             }
         }
+
+        when (artworks.loadState.append) {
+            is LoadState.Loading -> item(
+                key = "discover-append-loading",
+                span = { GridItemSpan(maxLineSpan) },
+                contentType = "append-loading",
+            ) {
+                val loadingDescription = stringResource(R.string.discover_loading_more)
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(Spacing.SizeL),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.semantics {
+                            stateDescription = loadingDescription
+                            liveRegion = LiveRegionMode.Polite
+                        },
+                    )
+                }
+            }
+            is LoadState.Error -> item(
+                key = "discover-append-error",
+                span = { GridItemSpan(maxLineSpan) },
+                contentType = "append-error",
+            ) {
+                ErrorScreen(
+                    title = stringResource(R.string.discover_append_error),
+                    onRetry = { artworks.retry() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(Spacing.SizeL)
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
+            is LoadState.NotLoading -> Unit
+        }
     }
 }
-

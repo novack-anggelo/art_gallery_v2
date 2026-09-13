@@ -4,11 +4,11 @@ Art Gallery is a portfolio Android app for discovering works from the Art Instit
 
 The app uses the public [Art Institute of Chicago API](https://api.artic.edu/docs/#introduction) and its [IIIF image service](https://api.artic.edu/docs/#iiif-image-api).
 
-> Status: Milestone 1 is in progress. The network and paginated listing data layers are implemented. The next step is the Discover ViewModel and its Koin registration, followed by the Compose gallery.
+> Status: Milestone 1 is in progress. Discover is connected to the application and supports artwork cards, initial loading, errors, empty content, pull to refresh, and pagination loading/error feedback. The next step is the adaptive grid, followed by restoration verification and artwork details.
 
 ## Learning workflow
 
-This is a developer-led portfolio project. The developer implements the application; Codex acts as a mentor by explaining tradeoffs, guiding small exercises, and reviewing the resulting code. Application implementation is not delegated to Codex. Unclear requirements must be clarified before proceeding. Documentation may be edited directly when requested.
+This is a developer-led portfolio project. The developer implements the application; Codex acts as a mentor by explaining tradeoffs, guiding small exercises, and reviewing the resulting code. Codex may implement specific changes when explicitly requested. Unclear requirements must be clarified before proceeding. Documentation may be edited directly when requested.
 
 ## Current progress
 
@@ -20,12 +20,23 @@ Implemented in the repository:
 - `ArtworkSummary` and the `ArtworkRepository` contract.
 - `ArtworkPagingSource` and `NetworkArtworkRepository`.
 - Tests for the dependency graph, network configuration, deserialization, mapping, paging, and repository output.
+- `DiscoverViewModel`, its Koin registration, and tests using a main dispatcher rule.
+- Application theme and navigation host, with `DiscoverRoute` collecting the cached paging flow.
+- Artwork cards with a uniform 1:1 image area and `ContentScale.Fit` to preserve the full artwork, followed by title, artist/date, and optional medium metadata.
+- A collapsible Discover header that keeps a compact version visible and expands when scrolling back up; search is deferred.
+- Initial shimmer skeletons, an initial-error screen with Retry, and an empty collection message.
+- Pull to refresh for populated and empty collections. Existing artworks remain visible during refresh; refresh failures with content show a themed snackbar without an action.
+- Custom light/dark palettes and debug previews for cards, header, screen states, and errors.
+- Full-width pagination footers for loading and errors, with Retry for failed loads.
+- Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
-These entries describe code present in the repository, not a completed quality gate. Tests were inspected but not executed during the documentation review.
+These entries describe code present in the repository, not a completed quality gate. Previous validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. Tests were not rerun for this documentation update.
 
-The project is currently in implementation slice 3 (Discover), with its data layer in place. The detail data contract from slice 2 is still pending. The Compose application shell currently contains an empty `Scaffold`.
+The project is currently in implementation slice 3 (Discover). Both content and skeleton grids still use one column. Adaptive columns and restoration verification remain pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination.
 
-The immediate exercise is to create `DiscoverViewModel`, inject `ArtworkRepository`, expose its paginated flow as a property using `cachedIn(viewModelScope)`, and register the ViewModel in a feature Koin module. After reviewing that step, connect the flow to Compose through `LazyPagingItems`, then add the adaptive grid, image loading, load states, retries, and state restoration.
+The content grid now handles `loadState.append`: it shows a loading indicator at the end while another page loads, shows an inline error with Retry calling `artworks.retry()` if it fails, and removes the indicator when loading finishes or the collection ends. Existing artworks remain visible. Both footers span all grid columns.
+
+Next, implement adaptive columns (one on portrait phones, two or more in landscape/on tablets; exact sizing remains to be agreed), verify state restoration, and continue with ID-based artwork details.
 
 ## Product vision
 
@@ -52,7 +63,7 @@ The first vertical slice will deliver a complete, testable flow:
 For the overview, the client will request only the fields it renders, for example:
 
 ```text
-id,title,artist_title,date_display,image_id,thumbnail,is_public_domain,color
+id,title,artist_title,date_display,medium_display,image_id,thumbnail,is_public_domain,color
 ```
 
 Image URLs will be derived from the API response's `config.iiif_url`; the host will not be hardcoded.
@@ -115,17 +126,20 @@ The project will start as a single Gradle application module organized by featur
 ```text
 app/src/main/kotlin/com/novack/artgalleryv2/
 ├── core/
+│   ├── data/
+│   │   ├── di/
+│   │   ├── mappers/
+│   │   ├── paging/
+│   │   ├── remote/
+│   │   └── repository/
+│   └── domain/
+│       ├── model/
+│       └── repository/
+├── ui/
 │   ├── common/
-│   ├── database/
-│   ├── designsystem/
-│   ├── model/
-│   └── network/
-├── feature/
-│   ├── artwork/
-│   ├── collections/
-│   ├── discover/
-│   ├── search/
-│   └── tours/
+│   ├── feature/
+│   │   └── discover/
+│   └── theme/
 ├── navigation/
 └── di/
 ```
@@ -189,6 +203,17 @@ Retrofit is selected for the initial implementation because the API is conventio
 ### Pagination
 
 The data layer will translate API pagination into Paging 3 keys. Listing and search pagination differences will remain internal to the repository so the UI consumes the same `PagingData<ArtworkSummary>` abstraction in both cases.
+
+Discover distinguishes initial loading, refresh, and append:
+
+- Initial loading without content displays shimmer cards.
+- An initial failure displays a full-screen error with Retry.
+- A successful empty response displays a message and supports pull to refresh.
+- Pull to refresh calls `artworks.refresh()` and preserves existing artworks while loading.
+- A refresh failure with artworks displays a snackbar using `primaryContainer` / `onPrimaryContainer`, without an action; the user can pull again.
+- Append loading and errors appear at the end of the grid. Append Retry calls `artworks.retry()` to retry failed loads without refreshing the collection. No footer is shown while append is not loading, including after reaching the end.
+
+All states above are implemented; pagination footer behavior still needs device verification.
 
 ### State restoration
 

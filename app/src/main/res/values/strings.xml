@@ -12,4 +12,6 @@
     <string name="discover_empty_title">No artworks available</string>
     <string name="discover_empty_subtitle">Pull down to refresh.</string>
     <string name="discover_refresh_error">Unable to refresh artworks</string>
+    <string name="discover_loading_more">Loading more artworks</string>
+    <string name="discover_append_error">Unable to load more artworks</string>
 </resources>
