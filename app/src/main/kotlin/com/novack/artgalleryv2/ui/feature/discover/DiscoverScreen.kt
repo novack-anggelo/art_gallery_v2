@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -51,6 +52,8 @@ import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCardSkeleto
 import com.novack.artgalleryv2.ui.feature.discover.components.DiscoverHeader
 import com.novack.artgalleryv2.ui.theme.Spacing
 import org.koin.androidx.compose.koinViewModel
+
+private val ARTWORK_MIN_WIDTH = 280.dp
 
 @Composable
 internal fun DiscoverRoute(
@@ -158,7 +161,7 @@ private fun InitialLoadingState() {
     val loadingDescription = stringResource(R.string.discover_loading)
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(1), // TODO: change to adaptative when defined
+        columns = GridCells.Adaptive(minSize = ARTWORK_MIN_WIDTH), // TODO: change to adaptative when defined
         modifier = Modifier
             .fillMaxSize()
             .semantics {
@@ -185,7 +188,7 @@ private fun LoadedState(
     onArtworkClick: (Int) -> Unit,
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(1), // TODO: change to adaptative when defined
+        columns = GridCells.Adaptive(minSize = ARTWORK_MIN_WIDTH), // TODO: change to adaptative when defined
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.SizeXS),
         verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
