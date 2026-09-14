@@ -56,6 +56,29 @@ internal class ArtworkPreviewProvider : CollectionPreviewParameterProvider<Artwo
 private fun ArtworkCardPreview(
     @PreviewParameter(ArtworkPreviewProvider::class) artwork: ArtworkSummary,
 ) {
+    ArtworkCardPreviewContent(artwork = artwork)
+}
+
+@Preview(name = "Title only", showBackground = true, widthDp = 360)
+@Preview(name = "Title only large text", showBackground = true, widthDp = 360, fontScale = 1.8f)
+@Composable
+private fun ArtworkCardTitleOnlyPreview() {
+    ArtworkCardPreviewContent(
+        artwork = sampleArtwork,
+        metadataVisibility = ArtworkMetadataVisibility(
+            showArtist = false,
+            showDate = false,
+            showMedium = false,
+        ),
+    )
+}
+
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun ArtworkCardPreviewContent(
+    artwork: ArtworkSummary,
+    metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
+) {
     val previewHandler = AsyncImagePreviewHandler { request ->
         val resource = if (request.data == "preview:portrait") {
             R.drawable.artwork_preview_portrait
@@ -70,6 +93,7 @@ private fun ArtworkCardPreview(
                 artworkSummary = artwork,
                 onClick = {},
                 modifier = Modifier.padding(Spacing.SizeM),
+                metadataVisibility = metadataVisibility,
             )
         }
     }

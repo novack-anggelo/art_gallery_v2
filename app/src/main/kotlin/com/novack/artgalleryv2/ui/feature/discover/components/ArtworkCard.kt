@@ -26,6 +26,7 @@ internal fun ArtworkCard(
     artworkSummary: ArtworkSummary,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
 ) {
     Card(
         onClick = onClick,
@@ -51,6 +52,7 @@ internal fun ArtworkCard(
                 artist = artworkSummary.artist,
                 dateDisplay = artworkSummary.dateDisplay,
                 mediumDisplay = artworkSummary.mediumDisplay,
+                metadataVisibility = metadataVisibility,
             )
         }
     }
@@ -62,6 +64,7 @@ private fun ArtworkCardFooter(
     artist: String?,
     dateDisplay: String?,
     mediumDisplay: String?,
+    metadataVisibility: ArtworkMetadataVisibility,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -69,12 +72,18 @@ private fun ArtworkCardFooter(
         verticalArrangement = Arrangement.spacedBy(Spacing.SizeXXS),
     ) {
         Text(text = title, style = MaterialTheme.typography.titleLarge)
-        Text(
-            text = artworkMetadataText(artist, dateDisplay),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        mediumDisplay?.let {
+        artworkMetadataText(
+            artist = artist.takeIf { metadataVisibility.showArtist },
+            dateDisplay = dateDisplay.takeIf { metadataVisibility.showDate },
+            showUnknownArtist = metadataVisibility.showArtist,
+        )?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        mediumDisplay.takeIf { metadataVisibility.showMedium }?.let {
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
@@ -85,11 +94,16 @@ private fun ArtworkCardFooter(
 }
 
 @Composable
-private fun artworkMetadataText(artist: String?, dateDisplay: String?): String {
-    val artistName = artist ?: stringResource(R.string.unknown_artist)
-    return if (dateDisplay == null) {
-        artistName
-    } else {
-        stringResource(R.string.artwork_artist_and_date, artistName, dateDisplay)
+private fun artworkMetadataText(
+    artist: String?,
+    dateDisplay: String?,
+    showUnknownArtist: Boolean,
+): String? {
+    val artistName = artist ?: stringResource(R.string.unknown_artist).takeIf { showUnknownArtist }
+    return when {
+        artistName != null && dateDisplay != null ->
+            stringResource(R.string.artwork_artist_and_date, artistName, dateDisplay)
+        artistName != null -> artistName
+        else -> dateDisplay
     }
 }

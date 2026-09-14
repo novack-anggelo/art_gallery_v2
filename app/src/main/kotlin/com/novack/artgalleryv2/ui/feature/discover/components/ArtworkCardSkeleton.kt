@@ -26,7 +26,10 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import com.novack.artgalleryv2.ui.theme.Spacing
 
 @Composable
-internal fun ArtworkCardSkeleton(modifier: Modifier = Modifier) {
+internal fun ArtworkCardSkeleton(
+    modifier: Modifier = Modifier,
+    metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
+) {
     val transition = rememberInfiniteTransition(label = "Artwork loading")
     val progress = transition.animateFloat(
         initialValue = -1f,
@@ -69,8 +72,12 @@ internal fun ArtworkCardSkeleton(modifier: Modifier = Modifier) {
             Spacer(Modifier.fillMaxWidth().aspectRatio(1f).then(shimmer))
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.SizeXXS)) {
                 Spacer(Modifier.fillMaxWidth(0.8f).height(titleHeight).then(shimmer))
-                Spacer(Modifier.fillMaxWidth(0.6f).height(metadataHeight).then(shimmer))
-                Spacer(Modifier.fillMaxWidth(0.4f).height(metadataHeight).then(shimmer))
+                if (metadataVisibility.showArtist || metadataVisibility.showDate) {
+                    Spacer(Modifier.fillMaxWidth(0.6f).height(metadataHeight).then(shimmer))
+                }
+                if (metadataVisibility.showMedium) {
+                    Spacer(Modifier.fillMaxWidth(0.4f).height(metadataHeight).then(shimmer))
+                }
             }
         }
     }
