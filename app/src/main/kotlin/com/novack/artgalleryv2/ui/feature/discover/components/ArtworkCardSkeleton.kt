@@ -25,7 +25,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import com.novack.artgalleryv2.ui.feature.discover.DiscoverPresentation
+import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
+import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.ui.feature.discover.cardPadding
+import com.novack.artgalleryv2.ui.feature.discover.imageSize
 import com.novack.artgalleryv2.ui.theme.Spacing
 
 @Composable

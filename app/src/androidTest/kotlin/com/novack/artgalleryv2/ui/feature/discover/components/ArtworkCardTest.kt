@@ -17,8 +17,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.novack.artgalleryv2.core.domain.model.ArtworkImage
+import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.ui.feature.discover.DiscoverPresentation
+import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

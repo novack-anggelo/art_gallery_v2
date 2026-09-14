@@ -45,10 +45,12 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
+import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.ui.common.ErrorScreen
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCard
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCardSkeleton
-import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.ui.feature.discover.components.DiscoverHeader
 import com.novack.artgalleryv2.ui.theme.Spacing
 import org.koin.androidx.compose.koinViewModel
@@ -68,8 +70,7 @@ internal fun DiscoverRoute(
 internal fun DiscoverScreen(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
-    metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
-    presentation: DiscoverPresentation = DiscoverPresentation.LargeGrid,
+    preferences: DiscoverPreferences = DiscoverPreferences(),
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState(),
@@ -125,11 +126,14 @@ internal fun DiscoverScreen(
                 artworks.itemCount > 0 -> LoadedState(
                     artworks = artworks,
                     onArtworkClick = onArtworkClick,
-                    metadataVisibility = metadataVisibility,
-                    presentation = presentation,
+                    metadataVisibility = preferences.metadataVisibility,
+                    presentation = preferences.presentation,
                 )
                 refreshState is LoadState.Loading && !pullRequested ->
-                    InitialLoadingState(metadataVisibility, presentation)
+                    InitialLoadingState(
+                        preferences.metadataVisibility,
+                        preferences.presentation,
+                    )
                 refreshState is LoadState.Error -> ErrorScreen(
                     title = stringResource(R.string.discover_error_title),
                     subtitle = stringResource(R.string.discover_error_subtitle),

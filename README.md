@@ -33,11 +33,12 @@ Implemented in the repository:
 - Custom light/dark palettes and debug previews for cards, header, screen states, and errors.
 - Full-width pagination footers for loading and errors, with Retry for failed loads.
 - Content and skeletons support large (280 dp minimum) and compact (160 dp minimum) adaptive grids plus full-width thumbnail rows with 96 dp square images.
+- Typed Discover preferences combine presentation and metadata visibility, with deterministic rules for direct selection, bounded size steps, and metadata changes.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
 These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
 
-The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase AI Logic, local preference persistence, and prompt-driven customization are not yet implemented.
+The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase AI Logic, local preference persistence, prompt-driven customization, and preference state coordination are not yet implemented.
 
 The content grid now handles `loadState.append`: it shows a loading indicator at the end while another page loads, shows an inline error with Retry calling `artworks.retry()` if it fails, and removes the indicator when loading finishes or the collection ends. Existing artworks remain visible. Both footers span all grid columns.
 
