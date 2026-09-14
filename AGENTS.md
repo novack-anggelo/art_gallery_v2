@@ -30,6 +30,7 @@
 ## Commits and pull requests
 
 - Use a separate Git worktree with a dedicated `codex/` branch for each approved feature or PR, based on the appropriate current target branch. Preserve the developer's checkout and unrelated work.
+- Create future feature worktrees as sibling directories under `/Users/anggelo.novack/StudioProjects`, never under `/private/tmp` (for example, `/Users/anggelo.novack/StudioProjects/art_gallery_v2_thumbnail_rows`).
 - Run edits, builds, tests, and Git operations from that worktree. Independent approved features can proceed in parallel in separate worktrees; coordinate dependencies and overlapping changes before starting concurrent work.
 - Keep every commit small, clear, focused on one purpose, and compilable. Do not leave intermediate commits with unresolved references or broken builds.
 - Keep each PR below 400 total added plus deleted lines, including production code, tests, documentation, and configuration. Target a smaller diff to leave room for review fixes.
