@@ -16,6 +16,7 @@ import coil3.compose.LocalAsyncImagePreviewHandler
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.core.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverPresentation
 import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
 import com.novack.artgalleryv2.ui.theme.Spacing
 
@@ -73,11 +74,21 @@ private fun ArtworkCardTitleOnlyPreview() {
     )
 }
 
+@Preview(name = "Thumbnail row", showBackground = true, widthDp = 360)
+@Composable
+private fun ArtworkCardThumbnailRowPreview() {
+    ArtworkCardPreviewContent(
+        artwork = sampleArtwork,
+        presentation = DiscoverPresentation.ThumbnailRows,
+    )
+}
+
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun ArtworkCardPreviewContent(
     artwork: ArtworkSummary,
     metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
+    presentation: DiscoverPresentation = DiscoverPresentation.LargeGrid,
 ) {
     val previewHandler = AsyncImagePreviewHandler { request ->
         val resource = if (request.data == "preview:portrait") {
@@ -94,6 +105,7 @@ private fun ArtworkCardPreviewContent(
                 onClick = {},
                 modifier = Modifier.padding(Spacing.SizeM),
                 metadataVisibility = metadataVisibility,
+                presentation = presentation,
             )
         }
     }
