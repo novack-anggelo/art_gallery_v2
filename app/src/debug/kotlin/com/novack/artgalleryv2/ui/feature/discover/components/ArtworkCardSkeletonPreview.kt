@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverGridDensity
 import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
 import com.novack.artgalleryv2.ui.theme.Spacing
 
@@ -15,6 +16,17 @@ import com.novack.artgalleryv2.ui.theme.Spacing
 private fun ArtworkCardSkeletonPreview() {
     Art_gallery_v2Theme {
         ArtworkCardSkeleton(modifier = Modifier.padding(Spacing.SizeM))
+    }
+}
+
+@Preview(name = "Loading compact", showBackground = true, widthDp = 180)
+@Composable
+private fun ArtworkCardSkeletonCompactPreview() {
+    Art_gallery_v2Theme {
+        ArtworkCardSkeleton(
+            modifier = Modifier.padding(Spacing.SizeXS),
+            gridDensity = DiscoverGridDensity.Compact,
+        )
     }
 }
 
