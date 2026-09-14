@@ -4,8 +4,7 @@
 
 - Use all available development tools while keeping product quality, maintainability, and architectural clarity central.
 - Codex implements approved work, verifies it, and opens pull requests. The developer approves each feature and controls merging.
-- Keep the coordinating task focused on feature planning, high-level architectural decisions, independent review, and PR coordination. Delegate implementation and implementation fixes to GPT-5.6 Sol in the feature's worktree.
-- Give the implementation agent the approved scope, acceptance criteria, architectural boundaries, QA requirements, and PR size limit. Return material uncertainty to the coordinating task and developer; delegation does not replace feature approval or QA.
+- Keep planning, implementation, review, QA, and PR coordination in one task by default. Use subagents only when the developer explicitly requests them and independent parallel work provides a clear time or quality benefit.
 - The active milestone is adaptive Discover through prompting. Artwork Q&A follows later; the remaining original roadmap is paused. See README.md for scope and current implementation status.
 
 ## Plan and approval before implementation
@@ -16,6 +15,14 @@
 - If a feature will not fit the PR limit, propose smaller coherent increments before implementation and obtain approval for each increment.
 - When uncertain about requirements, behavior, or architectural decisions, stop the affected work and ask. Do not turn unanswered questions into requirements.
 - If implementation reveals a material scope or architecture change, return to clarification and revised-plan approval. Continue only independent work already authorized.
+
+## Token-efficient execution
+
+- After a PR is merged, recommend starting the next feature in a fresh Codex task with a concise handoff containing only current state, target branch, and relevant decisions.
+- Use medium reasoning for routine, bounded work when reasoning effort is configurable. Increase it only for difficult architecture, debugging, or failed attempts that justify the additional cost.
+- Read relevant sections and targeted code paths. Prefer focused searches, ranges, and diffs over printing whole files or complete diffs when a narrower view is sufficient.
+- Keep prompts, tool output, agent reports, and progress updates concise while preserving decisions, blockers, and verification evidence.
+- Run the required QA gate once on the final unchanged HEAD. Repeat successful checks only after relevant changes, failures, or unresolved evidence.
 
 ## Coding and architecture
 
