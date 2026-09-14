@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -61,8 +62,13 @@ internal fun DiscoverRoute(
     viewModel: DiscoverViewModel = koinViewModel(),
 ) {
     val artworks = viewModel.artworks.collectAsLazyPagingItems()
+    val preferences by viewModel.preferences.collectAsStateWithLifecycle()
 
-    DiscoverScreen(artworks = artworks, onArtworkClick = onArtworkClick)
+    DiscoverScreen(
+        artworks = artworks,
+        onArtworkClick = onArtworkClick,
+        preferences = preferences,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
