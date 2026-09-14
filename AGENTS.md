@@ -27,7 +27,8 @@
 
 ## Commits and pull requests
 
-- Use a dedicated `codex/` branch based on the appropriate current target branch. Preserve unrelated work.
+- Use a separate Git worktree with a dedicated `codex/` branch for each approved feature or PR, based on the appropriate current target branch. Preserve the developer's checkout and unrelated work.
+- Run edits, builds, tests, and Git operations from that worktree. Independent approved features can proceed in parallel in separate worktrees; coordinate dependencies and overlapping changes before starting concurrent work.
 - Keep every commit small, clear, focused on one purpose, and compilable. Do not leave intermediate commits with unresolved references or broken builds.
 - Keep each PR below 400 total added plus deleted lines, including production code, tests, documentation, and configuration. Target a smaller diff to leave room for review fixes.
 - Count the complete PR diff against its intended base, not only the latest commit. Splitting commits does not make an oversized PR acceptable.
