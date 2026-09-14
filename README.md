@@ -1,14 +1,18 @@
 # Art Gallery
 
-Art Gallery is a portfolio Android app for discovering works from the Art Institute of Chicago. It is designed to demonstrate modern Android development, thoughtful product design, clean architecture, offline support, accessibility, testing, and performance—not just API consumption.
+Art Gallery is a portfolio Android app for discovering works from the Art Institute of Chicago. The project explores what can be achieved using all available development tools, including AI, while keeping product quality, clean architecture, accessibility, testing, and performance central.
 
 The app uses the public [Art Institute of Chicago API](https://api.artic.edu/docs/#introduction) and its [IIIF image service](https://api.artic.edu/docs/#iiif-image-api).
 
-> Status: Milestone 1 is in progress. Discover is connected to the application and supports artwork cards, initial loading, errors, empty content, pull to refresh, and pagination loading/error feedback. The next step is the adaptive grid, followed by restoration verification and artwork details.
+> Status: The active milestone is LLM integration, starting with prompt-driven customization of Discover. The milestone plan is approved; each implementation feature still requires separate approval. Discover already supports adaptive columns and loading, error, empty, refresh, and pagination states. AI integration is not yet implemented. The remaining original roadmap is on hold.
 
-## Learning workflow
+## Development workflow
 
-This is a developer-led portfolio project. The developer implements the application; Codex acts as a mentor by explaining tradeoffs, guiding small exercises, and reviewing the resulting code. Codex may implement specific changes when explicitly requested. Unclear requirements must be clarified before proceeding. Documentation may be edited directly when requested.
+Codex implements approved features, performs QA, and opens PRs; the developer approves each feature and controls merging. Before implementation, every feature needs a concrete plan covering scope, architecture, acceptance criteria, verification, and estimated PR size. Milestone approval does not replace feature approval.
+
+Commits must stay small, clear, and compilable. Each PR must contain fewer than 400 added plus deleted lines, counting code, tests, documentation, and configuration across the complete PR diff. Larger features must be planned as smaller, independently approved increments. QA happens before a PR is opened: review coding practices and architecture, run applicable checks, and obtain developer QA when needed. Uncertainty or a blocked required check must be raised rather than silently resolved through assumptions.
+
+The repository's [working agreement](AGENTS.md) records the rules for ongoing implementation and review.
 
 ## Current progress
 
@@ -28,19 +32,55 @@ Implemented in the repository:
 - Pull to refresh for populated and empty collections. Existing artworks remain visible during refresh; refresh failures with content show a themed snackbar without an action.
 - Custom light/dark palettes and debug previews for cards, header, screen states, and errors.
 - Full-width pagination footers for loading and errors, with Retry for failed loads.
+- Adaptive content and skeleton grids using a 280 dp minimum card width.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
-These entries describe code present in the repository, not a completed quality gate. Previous validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. Tests were not rerun for this documentation update.
+These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
 
-The project is currently in implementation slice 3 (Discover). Both content and skeleton grids still use one column. Adaptive columns and restoration verification remain pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination.
+The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase AI Logic, local preference persistence, and prompt-driven customization are not yet implemented.
 
 The content grid now handles `loadState.append`: it shows a loading indicator at the end while another page loads, shows an inline error with Retry calling `artworks.retry()` if it fails, and removes the indicator when loading finishes or the collection ends. Existing artworks remain visible. Both footers span all grid columns.
 
-Next, implement adaptive columns (one on portrait phones, two or more in landscape/on tablets; exact sizing remains to be agreed), verify state restoration, and continue with ID-based artwork details.
+Next, plan and approve a small implementation feature within the adaptive Discover milestone below. The milestone's verification includes browsing context and layout changes; the original details flow remains paused.
+
+## Active milestone — Adaptive Discover through prompting
+
+The first AI integration is for personal testing. Users will customize Discover with natural-language requests while the app retains control of rendering and supported behavior. This is an approved milestone plan, not a list of implemented capabilities or blanket authorization to code every feature.
+
+### User experience
+
+- A **Customize Discover** button opens a bottom sheet with a prompt field and example requests.
+- Supported presentations are large image cards, compact grid cards, and thumbnail rows, with bounded image-size steps.
+- Repeated requests such as "smaller" use the current preferences and follow a deterministic progression toward thumbnail rows. At the minimum size, explain that no further reduction is available.
+- Artist, date, and medium can be shown or hidden independently. Artwork titles remain visible.
+- Apply valid changes immediately, show a short result message, and provide **Undo** and **Reset to default**.
+- Persist preferences locally across app restarts. Preserve browsing context as closely as possible during layout changes, anchored to the visible artwork.
+- Unsupported requests, invalid model responses, network failures, and exhausted quotas leave preferences intact and show a useful explanation.
+
+### Architectural approach
+
+- Use Gemini through [Firebase AI Logic](https://firebase.google.com/docs/ai-logic), behind an interface supplied through Koin. No custom backend is planned for this milestone.
+- Use a free-tier-eligible model on a Firebase Spark project without a linked billing account. Verify available models and actual project quotas during setup; do not assume unlimited free usage. See [Firebase AI Logic pricing](https://firebase.google.com/docs/ai-logic/pricing).
+- Configure Firebase App Check for local development and keep private development tokens out of the repository.
+- Send the request and current preferences for structured action interpretation. Validate the returned actions and bounds before applying application-controlled state transitions; the model does not generate executable UI code.
+- Store typed Discover preferences locally using DataStore. Cloud preference synchronization is outside this milestone.
+- Adapt cards and loading skeletons to the selected presentation while retaining existing Paging, refresh, and failure behavior.
+
+### Delivery and acceptance
+
+Plan the work in separately approved PRs below the size limit: preference and layout foundations, the customization interaction, Firebase integration, and the verification appropriate to each increment. These are architectural work areas, not a commitment to one PR per area; tests travel with the behavior they verify.
+
+The milestone is complete when a user can repeatedly shrink images into thumbnail rows, toggle metadata, undo or reset changes, restart with preferences retained, and recover from AI failures without losing the selected presentation or loaded gallery. Verification covers application rules, persistence, rejected actions, Compose interaction using a fake AI service, and real prompts. Manual checks include scrolling, rotation, dark mode, and large system text. Each PR must pass its applicable build, test, lint, and QA checks before opening.
+
+### Next integration and exclusions
+
+Artwork Q&A follows later: conversations will concern a selected artwork, using museum data plus clearly labeled general knowledge. Its detailed feature plan and implementation still require approval.
+
+This first milestone excludes artwork Q&A, app-wide UI customization, cloud preference synchronization, and the remaining original roadmap. Quality requirements for the work being delivered remain active even while broader roadmap features are paused.
 
 ## Product vision
 
-Art Gallery should feel like a small museum companion:
+Art Gallery should feel like a small museum companion that adapts to how a user wants to browse and helps them understand artworks. Prompt-driven Discover is the current focus; the longer-term vision below remains available for future planning:
 
 - Discover artwork through an adaptive, paginated gallery.
 - Open an artwork to inspect its image, artist, history, medium, dimensions, and location.
@@ -49,9 +89,9 @@ Art Gallery should feel like a small museum companion:
 - Explore artwork through color, related works, deep-zoom imagery, and audio tours.
 - Continue browsing useful cached content when the network is unavailable.
 
-## First release
+## Original first release — On hold
 
-The first vertical slice will deliver a complete, testable flow:
+The original first-release scope is preserved for future planning. Its remaining work is paused while adaptive Discover is developed:
 
 1. A paginated artwork overview displayed as an adaptive grid.
 2. Loading placeholders, empty states, initial-load errors, append errors, and retry actions.
@@ -68,7 +108,9 @@ id,title,artist_title,date_display,medium_display,image_id,thumbnail,is_public_d
 
 Image URLs will be derived from the API response's `config.iiif_url`; the host will not be hardcoded.
 
-## Roadmap
+## Original roadmap — Remaining work on hold
+
+The milestones below retain the original plan and completion criteria for reference. They do not describe the current implementation order or authorize new work. Applicable architecture, testing, and accessibility standards still govern the active AI milestone.
 
 ### Milestone 1 — Discover and details
 
@@ -83,7 +125,7 @@ Image URLs will be derived from the API response's `config.iiif_url`; the host w
 
 #### Milestone 1 implementation slices
 
-Work will proceed in small vertical slices so the application remains buildable and reviewable after each change:
+The original implementation sequence was organized into these vertical slices:
 
 1. **Foundation:** add Retrofit, kotlinx.serialization, Paging, Coil, Navigation, Koin, and test dependencies; create the `Application` class and Koin modules; add network permission and a graph smoke test.
 2. **Data contract:** model the list and detail responses, map nullable DTOs into stable domain models, create the API service and repository contract, and validate representative JSON fixtures.
@@ -191,6 +233,7 @@ Koin is intentionally kept at the composition boundary: domain models and busine
 - Room
 - Coil
 - DataStore
+- Firebase AI Logic for the active adaptive Discover milestone
 - Media3 for audio tours
 - JUnit, coroutine test utilities, Turbine, MockWebServer, and Compose UI testing
 - Detekt or Android Lint plus a Kotlin formatter
