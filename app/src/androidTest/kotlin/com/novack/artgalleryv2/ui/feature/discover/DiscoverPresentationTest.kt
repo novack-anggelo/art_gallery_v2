@@ -25,12 +25,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
-class DiscoverGridDensityTest {
+class DiscoverPresentationTest {
     @get:Rule
     val compose = createComposeRule()
 
     @Test
-    fun defaultDensityUsesOneColumnAt360Dp() {
+    fun defaultPresentationUsesLargeGridWithOneColumnAt360Dp() {
         showGrid()
 
         val first = compose.onNodeWithText("Artwork 0").getUnclippedBoundsInRoot()
@@ -41,8 +41,8 @@ class DiscoverGridDensityTest {
     }
 
     @Test
-    fun compactDensityUsesTwoColumnsAt360Dp() {
-        showGrid { DiscoverGridDensity.Compact }
+    fun compactGridUsesTwoColumnsAt360Dp() {
+        showGrid { DiscoverPresentation.CompactGrid }
 
         val first = compose.onNodeWithText("Artwork 0").getUnclippedBoundsInRoot()
         val second = compose.onNodeWithText("Artwork 1").getUnclippedBoundsInRoot()
@@ -52,34 +52,45 @@ class DiscoverGridDensityTest {
     }
 
     @Test
-    fun densityChangeKeepsVisibleArtworkAnchored() {
-        val density = mutableStateOf(DiscoverGridDensity.Comfortable)
-        showGrid { density.value }
+    fun thumbnailRowsUseOneFullWidthItemPerRow() {
+        showGrid { DiscoverPresentation.ThumbnailRows }
+
+        val first = compose.onNodeWithText("Artwork 0").getUnclippedBoundsInRoot()
+        val second = compose.onNodeWithText("Artwork 1").getUnclippedBoundsInRoot()
+
+        assertTrue(abs((first.left - second.left).value) < 1f)
+        assertTrue(second.top > first.bottom)
+    }
+
+    @Test
+    fun gridToRowChangeKeepsVisibleArtworkAnchored() {
+        val presentation = mutableStateOf(DiscoverPresentation.CompactGrid)
+        showGrid { presentation.value }
         compose.onNode(hasScrollAction()).performScrollToIndex(10)
         val anchoredArtwork = compose.onNodeWithText("Artwork 10").assertIsDisplayed()
         val topBeforeChange = anchoredArtwork.getUnclippedBoundsInRoot().top
 
-        compose.runOnIdle { density.value = DiscoverGridDensity.Compact }
+        compose.runOnIdle { presentation.value = DiscoverPresentation.ThumbnailRows }
 
         val topAfterChange = anchoredArtwork.assertIsDisplayed().getUnclippedBoundsInRoot().top
         assertTrue(abs((topBeforeChange - topAfterChange).value) < 1f)
     }
 
     private fun showGrid(
-        density: (() -> DiscoverGridDensity)? = null,
+        presentation: (() -> DiscoverPresentation)? = null,
     ) {
         val artworkFlow = flowOf(PagingData.from(artworks))
         compose.setContent {
             val pagingItems = remember { artworkFlow }.collectAsLazyPagingItems()
             Art_gallery_v2Theme {
                 Box(Modifier.width(360.dp).height(700.dp)) {
-                    if (density == null) {
+                    if (presentation == null) {
                         DiscoverScreen(pagingItems, onArtworkClick = {})
                     } else {
                         DiscoverScreen(
                             artworks = pagingItems,
                             onArtworkClick = {},
-                            gridDensity = density(),
+                            presentation = presentation(),
                         )
                     }
                 }

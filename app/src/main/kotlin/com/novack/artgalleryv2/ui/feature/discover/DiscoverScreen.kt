@@ -69,7 +69,7 @@ internal fun DiscoverScreen(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
     metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
-    gridDensity: DiscoverGridDensity = DiscoverGridDensity.Comfortable,
+    presentation: DiscoverPresentation = DiscoverPresentation.LargeGrid,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState(),
@@ -126,10 +126,10 @@ internal fun DiscoverScreen(
                     artworks = artworks,
                     onArtworkClick = onArtworkClick,
                     metadataVisibility = metadataVisibility,
-                    gridDensity = gridDensity,
+                    presentation = presentation,
                 )
                 refreshState is LoadState.Loading && !pullRequested ->
-                    InitialLoadingState(metadataVisibility, gridDensity)
+                    InitialLoadingState(metadataVisibility, presentation)
                 refreshState is LoadState.Error -> ErrorScreen(
                     title = stringResource(R.string.discover_error_title),
                     subtitle = stringResource(R.string.discover_error_subtitle),
@@ -162,12 +162,12 @@ private fun DiscoverEmptyState() {
 @Composable
 private fun InitialLoadingState(
     metadataVisibility: ArtworkMetadataVisibility,
-    gridDensity: DiscoverGridDensity,
+    presentation: DiscoverPresentation,
 ) {
     val loadingDescription = stringResource(R.string.discover_loading)
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = gridDensity.minimumCellWidth),
+        columns = presentation.gridCells(),
         modifier = Modifier
             .fillMaxSize()
             .semantics {
@@ -186,7 +186,7 @@ private fun InitialLoadingState(
             ArtworkCardSkeleton(
                 modifier = Modifier.fillMaxWidth(),
                 metadataVisibility = metadataVisibility,
-                gridDensity = gridDensity,
+                presentation = presentation,
             )
         }
     }
@@ -197,10 +197,10 @@ private fun LoadedState(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
     metadataVisibility: ArtworkMetadataVisibility,
-    gridDensity: DiscoverGridDensity,
+    presentation: DiscoverPresentation,
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = gridDensity.minimumCellWidth),
+        columns = presentation.gridCells(),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.SizeXS),
         verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
@@ -218,7 +218,7 @@ private fun LoadedState(
                     onClick = { onArtworkClick(it.id) },
                     modifier = Modifier.fillMaxWidth(),
                     metadataVisibility = metadataVisibility,
-                    gridDensity = gridDensity,
+                    presentation = presentation,
                 )
             }
         }
@@ -259,4 +259,9 @@ private fun LoadedState(
             is LoadState.NotLoading -> Unit
         }
     }
+}
+
+private fun DiscoverPresentation.gridCells(): GridCells = when (this) {
+    DiscoverPresentation.ThumbnailRows -> GridCells.Fixed(1)
+    else -> GridCells.Adaptive(minSize = checkNotNull(minimumCellWidth))
 }

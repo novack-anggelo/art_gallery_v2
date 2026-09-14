@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.flowOf
 @Preview(name = "Tablet", showBackground = true, widthDp = 800, heightDp = 1280)
 @Composable
 private fun DiscoverScreenPreview() {
-    DiscoverScreenPreviewContent(DiscoverGridDensity.Comfortable)
+    DiscoverScreenPreviewContent(DiscoverPresentation.LargeGrid)
 }
 
 @Preview(name = "Compact", showBackground = true, widthDp = 360, heightDp = 800)
@@ -55,12 +55,32 @@ private fun DiscoverScreenPreview() {
 )
 @Composable
 private fun DiscoverScreenCompactPreview() {
-    DiscoverScreenPreviewContent(DiscoverGridDensity.Compact)
+    DiscoverScreenPreviewContent(DiscoverPresentation.CompactGrid)
+}
+
+@Preview(name = "Thumbnail rows", showBackground = true, widthDp = 360, heightDp = 800)
+@Preview(
+    name = "Thumbnail rows dark",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Preview(
+    name = "Thumbnail rows large text",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800,
+    fontScale = 1.8f,
+)
+@Composable
+private fun DiscoverScreenThumbnailRowsPreview() {
+    DiscoverScreenPreviewContent(DiscoverPresentation.ThumbnailRows)
 }
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
-private fun DiscoverScreenPreviewContent(gridDensity: DiscoverGridDensity) {
+private fun DiscoverScreenPreviewContent(presentation: DiscoverPresentation) {
     val artworkFlow = remember {
         val artworks = ArtworkPreviewProvider().values
             // Card fixtures share an ID; a grid needs a unique key for every item.
@@ -95,7 +115,7 @@ private fun DiscoverScreenPreviewContent(gridDensity: DiscoverGridDensity) {
                 DiscoverScreen(
                     artworks = artworks,
                     onArtworkClick = {},
-                    gridDensity = gridDensity,
+                    presentation = presentation,
                 )
             }
         }

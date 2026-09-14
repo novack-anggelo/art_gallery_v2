@@ -1,20 +1,24 @@
 package com.novack.artgalleryv2.ui.feature.discover.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.novack.artgalleryv2.core.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.ui.feature.discover.DiscoverGridDensity
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverPresentation
 import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -37,20 +41,20 @@ class ArtworkCardTest {
     @Test
     fun allVisibilityCombinationsRenderOnlySelectedMetadata() {
         var visibility by mutableStateOf(ArtworkMetadataVisibility())
-        var density by mutableStateOf(DiscoverGridDensity.Comfortable)
+        var presentation by mutableStateOf(DiscoverPresentation.LargeGrid)
         compose.setContent {
             Art_gallery_v2Theme {
                 ArtworkCard(
                     artwork,
                     onClick = {},
                     metadataVisibility = visibility,
-                    gridDensity = density,
+                    presentation = presentation,
                 )
             }
         }
 
-        DiscoverGridDensity.entries.forEach { selectedDensity ->
-            compose.runOnIdle { density = selectedDensity }
+        DiscoverPresentation.entries.forEach { selectedPresentation ->
+            compose.runOnIdle { presentation = selectedPresentation }
             listOf(true, false).forEach { showArtist ->
                 listOf(true, false).forEach { showDate ->
                     listOf(true, false).forEach { showMedium ->
@@ -113,23 +117,97 @@ class ArtworkCardTest {
     }
 
     @Test
-    fun skeletonReflectsSelectedGridDensity() {
-        var density by mutableStateOf(DiscoverGridDensity.Comfortable)
+    fun skeletonReflectsSelectedGridPresentation() {
+        var presentation by mutableStateOf(DiscoverPresentation.LargeGrid)
         compose.setContent {
             Art_gallery_v2Theme {
                 ArtworkCardSkeleton(
                     modifier = Modifier.width(180.dp).testTag("skeleton"),
-                    gridDensity = density,
+                    presentation = presentation,
                 )
             }
         }
 
         val skeleton = compose.onNodeWithTag("skeleton")
         val comfortableHeight = skeleton.getUnclippedBoundsInRoot().run { bottom - top }
-        compose.runOnIdle { density = DiscoverGridDensity.Compact }
+        compose.runOnIdle { presentation = DiscoverPresentation.CompactGrid }
         val compactHeight = skeleton.getUnclippedBoundsInRoot().run { bottom - top }
 
         assertTrue(comfortableHeight > compactHeight)
+    }
+
+    @Test
+    fun thumbnailRowUsesSquareImageBesideText() {
+        compose.setContent {
+            Art_gallery_v2Theme {
+                ArtworkCard(
+                    artworkSummary = artwork,
+                    onClick = {},
+                    modifier = Modifier.width(360.dp),
+                    presentation = DiscoverPresentation.ThumbnailRows,
+                )
+            }
+        }
+
+        val image = compose.onNodeWithTag("artwork-image", useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val title = compose.onNodeWithText("The artwork", useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        assertEquals(96f, (image.right - image.left).value, 1f)
+        assertEquals(96f, (image.bottom - image.top).value, 1f)
+        assertTrue(title.left > image.right)
+    }
+
+    @Test
+    fun thumbnailRowSkeletonUsesImageSizedHeight() {
+        compose.setContent {
+            Art_gallery_v2Theme {
+                ArtworkCardSkeleton(
+                    modifier = Modifier.width(360.dp).testTag("skeleton-row"),
+                    metadataVisibility = ArtworkMetadataVisibility(false, false, false),
+                    presentation = DiscoverPresentation.ThumbnailRows,
+                )
+            }
+        }
+
+        val skeleton = compose.onNodeWithTag("skeleton-row").getUnclippedBoundsInRoot()
+        assertEquals(120f, (skeleton.bottom - skeleton.top).value, 1f)
+    }
+
+    @Test
+    fun thumbnailRowAndSkeletonExpandForLargeText() {
+        compose.setContent {
+            CompositionLocalProvider(
+                LocalDensity provides Density(LocalDensity.current.density, fontScale = 2f),
+            ) {
+                Art_gallery_v2Theme {
+                    Column {
+                        ArtworkCard(
+                            artworkSummary = artwork.copy(
+                                title = "A very long artwork title that wraps across lines",
+                            ),
+                            onClick = {},
+                            modifier = Modifier.width(360.dp).testTag("card"),
+                            presentation = DiscoverPresentation.ThumbnailRows,
+                        )
+                        ArtworkCardSkeleton(
+                            modifier = Modifier.width(360.dp).testTag("skeleton-row"),
+                            presentation = DiscoverPresentation.ThumbnailRows,
+                        )
+                    }
+                }
+            }
+        }
+
+        val card = compose.onNodeWithTag("card").getUnclippedBoundsInRoot()
+        val title = compose.onNodeWithText(
+            "A very long artwork title that wraps across lines",
+            useUnmergedTree = true,
+        )
+            .assertIsDisplayed().getUnclippedBoundsInRoot()
+        val skeleton = compose.onNodeWithTag("skeleton-row").getUnclippedBoundsInRoot()
+        assertTrue(title.bottom <= card.bottom)
+        assertTrue((skeleton.bottom - skeleton.top).value > 120f)
     }
 
     private fun setCard(

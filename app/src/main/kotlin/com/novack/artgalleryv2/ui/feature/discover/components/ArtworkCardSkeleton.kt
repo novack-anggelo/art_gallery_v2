@@ -8,11 +8,13 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -23,14 +25,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import com.novack.artgalleryv2.ui.feature.discover.DiscoverGridDensity
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverPresentation
 import com.novack.artgalleryv2.ui.theme.Spacing
 
 @Composable
 internal fun ArtworkCardSkeleton(
     modifier: Modifier = Modifier,
     metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
-    gridDensity: DiscoverGridDensity = DiscoverGridDensity.Comfortable,
+    presentation: DiscoverPresentation = DiscoverPresentation.LargeGrid,
 ) {
     val transition = rememberInfiniteTransition(label = "Artwork loading")
     val progress = transition.animateFloat(
@@ -59,9 +61,10 @@ internal fun ArtworkCardSkeleton(
         }
     }
     val density = LocalDensity.current
-    val titleStyle = when (gridDensity) {
-        DiscoverGridDensity.Comfortable -> MaterialTheme.typography.titleLarge
-        DiscoverGridDensity.Compact -> MaterialTheme.typography.titleMedium
+    val titleStyle = when (presentation) {
+        DiscoverPresentation.LargeGrid -> MaterialTheme.typography.titleLarge
+        DiscoverPresentation.CompactGrid,
+        DiscoverPresentation.ThumbnailRows -> MaterialTheme.typography.titleMedium
     }
     val titleHeight = with(density) { titleStyle.lineHeight.toDp() }
     val metadataHeight = with(density) { MaterialTheme.typography.bodySmall.lineHeight.toDp() }
@@ -71,12 +74,15 @@ internal fun ArtworkCardSkeleton(
         modifier = modifier.clearAndSetSemantics {},
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
-        Column(
-            modifier = Modifier.padding(gridDensity.cardPadding),
-            verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
-        ) {
-            Spacer(Modifier.fillMaxWidth().aspectRatio(1f).then(shimmer))
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.SizeXXS)) {
+        val imageModifier = Modifier.let {
+            presentation.imageSize?.let { size -> it.size(size) }
+                ?: it.fillMaxWidth().aspectRatio(1f)
+        }
+        val footer: @Composable (Modifier) -> Unit = { footerModifier ->
+            Column(
+                modifier = footerModifier,
+                verticalArrangement = Arrangement.spacedBy(Spacing.SizeXXS),
+            ) {
                 Spacer(Modifier.fillMaxWidth(0.8f).height(titleHeight).then(shimmer))
                 if (metadataVisibility.showArtist || metadataVisibility.showDate) {
                     Spacer(Modifier.fillMaxWidth(0.6f).height(metadataHeight).then(shimmer))
@@ -84,6 +90,23 @@ internal fun ArtworkCardSkeleton(
                 if (metadataVisibility.showMedium) {
                     Spacer(Modifier.fillMaxWidth(0.4f).height(metadataHeight).then(shimmer))
                 }
+            }
+        }
+        if (presentation == DiscoverPresentation.ThumbnailRows) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(presentation.cardPadding),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.SizeS),
+            ) {
+                Spacer(imageModifier.then(shimmer))
+                footer(Modifier.weight(1f))
+            }
+        } else {
+            Column(
+                modifier = Modifier.padding(presentation.cardPadding),
+                verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
+            ) {
+                Spacer(imageModifier.then(shimmer))
+                footer(Modifier)
             }
         }
     }
