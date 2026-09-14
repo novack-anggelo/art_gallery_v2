@@ -1,5 +1,6 @@
 package com.novack.artgalleryv2.ui.feature.discover.components
 
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,8 +11,10 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import com.novack.artgalleryv2.core.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverGridDensity
 import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -34,23 +37,32 @@ class ArtworkCardTest {
     @Test
     fun allVisibilityCombinationsRenderOnlySelectedMetadata() {
         var visibility by mutableStateOf(ArtworkMetadataVisibility())
+        var density by mutableStateOf(DiscoverGridDensity.Comfortable)
         compose.setContent {
             Art_gallery_v2Theme {
-                ArtworkCard(artwork, onClick = {}, metadataVisibility = visibility)
+                ArtworkCard(
+                    artwork,
+                    onClick = {},
+                    metadataVisibility = visibility,
+                    gridDensity = density,
+                )
             }
         }
 
-        listOf(true, false).forEach { showArtist ->
-            listOf(true, false).forEach { showDate ->
-                listOf(true, false).forEach { showMedium ->
-                    compose.runOnIdle {
-                        visibility = ArtworkMetadataVisibility(showArtist, showDate, showMedium)
+        DiscoverGridDensity.entries.forEach { selectedDensity ->
+            compose.runOnIdle { density = selectedDensity }
+            listOf(true, false).forEach { showArtist ->
+                listOf(true, false).forEach { showDate ->
+                    listOf(true, false).forEach { showMedium ->
+                        compose.runOnIdle {
+                            visibility = ArtworkMetadataVisibility(showArtist, showDate, showMedium)
+                        }
+                        compose.onNodeWithText("The artwork").assertIsDisplayed()
+                        assertTextExists("The artist · 1900", showArtist && showDate)
+                        assertTextExists("The artist", showArtist && !showDate)
+                        assertTextExists("1900", !showArtist && showDate)
+                        assertTextExists("Oil on canvas", showMedium)
                     }
-                    compose.onNodeWithText("The artwork").assertIsDisplayed()
-                    assertTextExists("The artist · 1900", showArtist && showDate)
-                    assertTextExists("The artist", showArtist && !showDate)
-                    assertTextExists("1900", !showArtist && showDate)
-                    assertTextExists("Oil on canvas", showMedium)
                 }
             }
         }
@@ -98,6 +110,26 @@ class ArtworkCardTest {
         compose.runOnIdle { visibility = ArtworkMetadataVisibility(false, true, false) }
         val dateOnlyHeight = skeleton.getUnclippedBoundsInRoot().run { bottom - top }
         assertEquals(artistOnlyHeight, dateOnlyHeight)
+    }
+
+    @Test
+    fun skeletonReflectsSelectedGridDensity() {
+        var density by mutableStateOf(DiscoverGridDensity.Comfortable)
+        compose.setContent {
+            Art_gallery_v2Theme {
+                ArtworkCardSkeleton(
+                    modifier = Modifier.width(180.dp).testTag("skeleton"),
+                    gridDensity = density,
+                )
+            }
+        }
+
+        val skeleton = compose.onNodeWithTag("skeleton")
+        val comfortableHeight = skeleton.getUnclippedBoundsInRoot().run { bottom - top }
+        compose.runOnIdle { density = DiscoverGridDensity.Compact }
+        val compactHeight = skeleton.getUnclippedBoundsInRoot().run { bottom - top }
+
+        assertTrue(comfortableHeight > compactHeight)
     }
 
     private fun setCard(

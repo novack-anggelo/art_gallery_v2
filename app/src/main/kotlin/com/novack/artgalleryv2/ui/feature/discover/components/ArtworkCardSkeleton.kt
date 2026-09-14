@@ -23,12 +23,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverGridDensity
 import com.novack.artgalleryv2.ui.theme.Spacing
 
 @Composable
 internal fun ArtworkCardSkeleton(
     modifier: Modifier = Modifier,
     metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
+    gridDensity: DiscoverGridDensity = DiscoverGridDensity.Comfortable,
 ) {
     val transition = rememberInfiniteTransition(label = "Artwork loading")
     val progress = transition.animateFloat(
@@ -57,7 +59,11 @@ internal fun ArtworkCardSkeleton(
         }
     }
     val density = LocalDensity.current
-    val titleHeight = with(density) { MaterialTheme.typography.titleLarge.lineHeight.toDp() }
+    val titleStyle = when (gridDensity) {
+        DiscoverGridDensity.Comfortable -> MaterialTheme.typography.titleLarge
+        DiscoverGridDensity.Compact -> MaterialTheme.typography.titleMedium
+    }
+    val titleHeight = with(density) { titleStyle.lineHeight.toDp() }
     val metadataHeight = with(density) { MaterialTheme.typography.bodySmall.lineHeight.toDp() }
 
     // The screen announces loading once; decorative skeletons have no actions or semantics.
@@ -66,7 +72,7 @@ internal fun ArtworkCardSkeleton(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
-            modifier = Modifier.padding(Spacing.SizeM),
+            modifier = Modifier.padding(gridDensity.cardPadding),
             verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
         ) {
             Spacer(Modifier.fillMaxWidth().aspectRatio(1f).then(shimmer))

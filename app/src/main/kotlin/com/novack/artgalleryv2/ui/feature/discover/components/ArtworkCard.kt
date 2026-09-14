@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.ui.feature.discover.DiscoverGridDensity
 import com.novack.artgalleryv2.ui.theme.Spacing
 
 @Composable
@@ -27,6 +28,7 @@ internal fun ArtworkCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
+    gridDensity: DiscoverGridDensity = DiscoverGridDensity.Comfortable,
 ) {
     Card(
         onClick = onClick,
@@ -34,7 +36,7 @@ internal fun ArtworkCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Column(
-            modifier = Modifier.padding(Spacing.SizeM),
+            modifier = Modifier.padding(gridDensity.cardPadding),
             verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
         ) {
             AsyncImage(
@@ -53,6 +55,7 @@ internal fun ArtworkCard(
                 dateDisplay = artworkSummary.dateDisplay,
                 mediumDisplay = artworkSummary.mediumDisplay,
                 metadataVisibility = metadataVisibility,
+                gridDensity = gridDensity,
             )
         }
     }
@@ -65,13 +68,20 @@ private fun ArtworkCardFooter(
     dateDisplay: String?,
     mediumDisplay: String?,
     metadataVisibility: ArtworkMetadataVisibility,
+    gridDensity: DiscoverGridDensity,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(Spacing.SizeXXS),
     ) {
-        Text(text = title, style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = title,
+            style = when (gridDensity) {
+                DiscoverGridDensity.Comfortable -> MaterialTheme.typography.titleLarge
+                DiscoverGridDensity.Compact -> MaterialTheme.typography.titleMedium
+            },
+        )
         artworkMetadataText(
             artist = artist.takeIf { metadataVisibility.showArtist },
             dateDisplay = dateDisplay.takeIf { metadataVisibility.showDate },

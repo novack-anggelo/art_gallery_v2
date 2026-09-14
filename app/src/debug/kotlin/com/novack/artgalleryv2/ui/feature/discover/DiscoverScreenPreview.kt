@@ -35,6 +35,32 @@ import kotlinx.coroutines.flow.flowOf
 @Preview(name = "Tablet", showBackground = true, widthDp = 800, heightDp = 1280)
 @Composable
 private fun DiscoverScreenPreview() {
+    DiscoverScreenPreviewContent(DiscoverGridDensity.Comfortable)
+}
+
+@Preview(name = "Compact", showBackground = true, widthDp = 360, heightDp = 800)
+@Preview(
+    name = "Compact dark",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Preview(
+    name = "Compact large text",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800,
+    fontScale = 1.8f,
+)
+@Composable
+private fun DiscoverScreenCompactPreview() {
+    DiscoverScreenPreviewContent(DiscoverGridDensity.Compact)
+}
+
+@OptIn(ExperimentalCoilApi::class)
+@Composable
+private fun DiscoverScreenPreviewContent(gridDensity: DiscoverGridDensity) {
     val artworkFlow = remember {
         val artworks = ArtworkPreviewProvider().values
             // Card fixtures share an ID; a grid needs a unique key for every item.
@@ -66,7 +92,11 @@ private fun DiscoverScreenPreview() {
     Art_gallery_v2Theme {
         CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
             Surface {
-                DiscoverScreen(artworks = artworks, onArtworkClick = {})
+                DiscoverScreen(
+                    artworks = artworks,
+                    onArtworkClick = {},
+                    gridDensity = gridDensity,
+                )
             }
         }
     }

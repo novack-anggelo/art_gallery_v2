@@ -39,7 +39,6 @@ import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -53,8 +52,6 @@ import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkMetadataVis
 import com.novack.artgalleryv2.ui.feature.discover.components.DiscoverHeader
 import com.novack.artgalleryv2.ui.theme.Spacing
 import org.koin.androidx.compose.koinViewModel
-
-private val ARTWORK_MIN_WIDTH = 280.dp
 
 @Composable
 internal fun DiscoverRoute(
@@ -72,6 +69,7 @@ internal fun DiscoverScreen(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
     metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
+    gridDensity: DiscoverGridDensity = DiscoverGridDensity.Comfortable,
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState(),
@@ -128,9 +126,10 @@ internal fun DiscoverScreen(
                     artworks = artworks,
                     onArtworkClick = onArtworkClick,
                     metadataVisibility = metadataVisibility,
+                    gridDensity = gridDensity,
                 )
                 refreshState is LoadState.Loading && !pullRequested ->
-                    InitialLoadingState(metadataVisibility)
+                    InitialLoadingState(metadataVisibility, gridDensity)
                 refreshState is LoadState.Error -> ErrorScreen(
                     title = stringResource(R.string.discover_error_title),
                     subtitle = stringResource(R.string.discover_error_subtitle),
@@ -161,11 +160,14 @@ private fun DiscoverEmptyState() {
 }
 
 @Composable
-private fun InitialLoadingState(metadataVisibility: ArtworkMetadataVisibility) {
+private fun InitialLoadingState(
+    metadataVisibility: ArtworkMetadataVisibility,
+    gridDensity: DiscoverGridDensity,
+) {
     val loadingDescription = stringResource(R.string.discover_loading)
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = ARTWORK_MIN_WIDTH), // TODO: change to adaptative when defined
+        columns = GridCells.Adaptive(minSize = gridDensity.minimumCellWidth),
         modifier = Modifier
             .fillMaxSize()
             .semantics {
@@ -184,6 +186,7 @@ private fun InitialLoadingState(metadataVisibility: ArtworkMetadataVisibility) {
             ArtworkCardSkeleton(
                 modifier = Modifier.fillMaxWidth(),
                 metadataVisibility = metadataVisibility,
+                gridDensity = gridDensity,
             )
         }
     }
@@ -194,9 +197,10 @@ private fun LoadedState(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
     metadataVisibility: ArtworkMetadataVisibility,
+    gridDensity: DiscoverGridDensity,
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = ARTWORK_MIN_WIDTH), // TODO: change to adaptative when defined
+        columns = GridCells.Adaptive(minSize = gridDensity.minimumCellWidth),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(Spacing.SizeXS),
         verticalArrangement = Arrangement.spacedBy(Spacing.SizeS),
@@ -214,6 +218,7 @@ private fun LoadedState(
                     onClick = { onArtworkClick(it.id) },
                     modifier = Modifier.fillMaxWidth(),
                     metadataVisibility = metadataVisibility,
+                    gridDensity = gridDensity,
                 )
             }
         }
