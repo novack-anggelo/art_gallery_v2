@@ -26,13 +26,13 @@ Implemented in the repository:
 - Tests for the dependency graph, network configuration, deserialization, mapping, paging, and repository output.
 - `DiscoverViewModel`, its Koin registration, and tests using a main dispatcher rule.
 - Application theme and navigation host, with `DiscoverRoute` collecting the cached paging flow.
-- Artwork cards with a uniform 1:1 image area and `ContentScale.Fit` to preserve the full artwork, followed by title, artist/date, and optional medium metadata.
+- Artwork cards preserve the full image with `ContentScale.Fit`; titles are always visible, while artist, date, and medium can each be shown or hidden.
 - A collapsible Discover header that keeps a compact version visible and expands when scrolling back up; search is deferred.
 - Initial shimmer skeletons, an initial-error screen with Retry, and an empty collection message.
 - Pull to refresh for populated and empty collections. Existing artworks remain visible during refresh; refresh failures with content show a themed snackbar without an action.
 - Custom light/dark palettes and debug previews for cards, header, screen states, and errors.
 - Full-width pagination footers for loading and errors, with Retry for failed loads.
-- Adaptive content and skeleton grids using a 280 dp minimum card width.
+- Content and skeletons support large (280 dp minimum) and compact (160 dp minimum) adaptive grids plus full-width thumbnail rows with 96 dp square images.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
 These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
