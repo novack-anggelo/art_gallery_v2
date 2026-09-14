@@ -17,3 +17,18 @@ private fun ArtworkCardSkeletonPreview() {
         ArtworkCardSkeleton(modifier = Modifier.padding(Spacing.SizeM))
     }
 }
+
+@Preview(name = "Loading title only", showBackground = true, widthDp = 360)
+@Composable
+private fun ArtworkCardSkeletonTitleOnlyPreview() {
+    Art_gallery_v2Theme {
+        ArtworkCardSkeleton(
+            modifier = Modifier.padding(Spacing.SizeM),
+            metadataVisibility = ArtworkMetadataVisibility(
+                showArtist = false,
+                showDate = false,
+                showMedium = false,
+            ),
+        )
+    }
+}

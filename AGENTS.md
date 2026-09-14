@@ -4,6 +4,8 @@
 
 - Use all available development tools while keeping product quality, maintainability, and architectural clarity central.
 - Codex implements approved work, verifies it, and opens pull requests. The developer approves each feature and controls merging.
+- Keep the coordinating task focused on feature planning, high-level architectural decisions, independent review, and PR coordination. Delegate implementation and implementation fixes to GPT-5.6 Sol in the feature's worktree.
+- Give the implementation agent the approved scope, acceptance criteria, architectural boundaries, QA requirements, and PR size limit. Return material uncertainty to the coordinating task and developer; delegation does not replace feature approval or QA.
 - The active milestone is adaptive Discover through prompting. Artwork Q&A follows later; the remaining original roadmap is paused. See README.md for scope and current implementation status.
 
 ## Plan and approval before implementation

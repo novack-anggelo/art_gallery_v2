@@ -49,6 +49,7 @@ import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.ui.common.ErrorScreen
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCard
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCardSkeleton
+import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.ui.feature.discover.components.DiscoverHeader
 import com.novack.artgalleryv2.ui.theme.Spacing
 import org.koin.androidx.compose.koinViewModel
@@ -70,6 +71,7 @@ internal fun DiscoverRoute(
 internal fun DiscoverScreen(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
+    metadataVisibility: ArtworkMetadataVisibility = ArtworkMetadataVisibility(),
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState(),
@@ -125,8 +127,10 @@ internal fun DiscoverScreen(
                 artworks.itemCount > 0 -> LoadedState(
                     artworks = artworks,
                     onArtworkClick = onArtworkClick,
+                    metadataVisibility = metadataVisibility,
                 )
-                refreshState is LoadState.Loading && !pullRequested -> InitialLoadingState()
+                refreshState is LoadState.Loading && !pullRequested ->
+                    InitialLoadingState(metadataVisibility)
                 refreshState is LoadState.Error -> ErrorScreen(
                     title = stringResource(R.string.discover_error_title),
                     subtitle = stringResource(R.string.discover_error_subtitle),
@@ -157,7 +161,7 @@ private fun DiscoverEmptyState() {
 }
 
 @Composable
-private fun InitialLoadingState() {
+private fun InitialLoadingState(metadataVisibility: ArtworkMetadataVisibility) {
     val loadingDescription = stringResource(R.string.discover_loading)
 
     LazyVerticalGrid(
@@ -177,7 +181,10 @@ private fun InitialLoadingState() {
             key = { "discover-skeleton-$it" },
             contentType = { "skeleton" },
         ) {
-            ArtworkCardSkeleton(modifier = Modifier.fillMaxWidth())
+            ArtworkCardSkeleton(
+                modifier = Modifier.fillMaxWidth(),
+                metadataVisibility = metadataVisibility,
+            )
         }
     }
 }
@@ -186,6 +193,7 @@ private fun InitialLoadingState() {
 private fun LoadedState(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
+    metadataVisibility: ArtworkMetadataVisibility,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = ARTWORK_MIN_WIDTH), // TODO: change to adaptative when defined
@@ -205,6 +213,7 @@ private fun LoadedState(
                     artworkSummary = it,
                     onClick = { onArtworkClick(it.id) },
                     modifier = Modifier.fillMaxWidth(),
+                    metadataVisibility = metadataVisibility,
                 )
             }
         }
