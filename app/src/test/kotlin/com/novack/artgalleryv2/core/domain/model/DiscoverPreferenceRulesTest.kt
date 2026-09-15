@@ -104,6 +104,46 @@ class DiscoverPreferenceRulesTest {
         )
     }
 
+    @Test
+    fun `transaction applies actions in order and retains both endpoints`() {
+        val original = DiscoverPreferences()
+        val result = original.apply(
+            listOf(
+                resize(ResizeDirection.Smaller),
+                DiscoverPreferenceAction.SetMetadataVisibility(
+                    ArtworkMetadataField.Date,
+                    visible = false,
+                ),
+            ),
+        )
+
+        assertEquals(original, result.previousPreferences)
+        assertEquals(DiscoverPresentation.CompactGrid, result.preferences.presentation)
+        assertEquals(false, result.preferences.metadataVisibility.showDate)
+        assertEquals(2, result.actionResults.size)
+        assertEquals(true, result.changed)
+    }
+
+    @Test
+    fun `transaction reports no net change when actions reverse each other`() {
+        val original = DiscoverPreferences()
+        val result = original.apply(
+            listOf(
+                DiscoverPreferenceAction.SetMetadataVisibility(
+                    ArtworkMetadataField.Artist,
+                    visible = false,
+                ),
+                DiscoverPreferenceAction.SetMetadataVisibility(
+                    ArtworkMetadataField.Artist,
+                    visible = true,
+                ),
+            ),
+        )
+
+        assertEquals(original, result.preferences)
+        assertEquals(false, result.changed)
+    }
+
     private fun resize(direction: ResizeDirection) =
         DiscoverPreferenceAction.ResizePresentation(direction)
 
