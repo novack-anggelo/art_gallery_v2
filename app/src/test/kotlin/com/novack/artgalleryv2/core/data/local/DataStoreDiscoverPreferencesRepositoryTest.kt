@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataField
 import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceNoChangeReason
@@ -70,20 +71,29 @@ class DataStoreDiscoverPreferencesRepositoryTest {
         )
         repository.replace(original)
 
-        val changed = repository.applyAction(
-            DiscoverPreferenceAction.ResizePresentation(ResizeDirection.Smaller),
+        val changed = repository.applyActions(
+            listOf(
+                DiscoverPreferenceAction.ResizePresentation(ResizeDirection.Smaller),
+                DiscoverPreferenceAction.SetMetadataVisibility(
+                    ArtworkMetadataField.Date,
+                    visible = false,
+                ),
+            ),
         )
-        val unchanged = repository.applyAction(
-            DiscoverPreferenceAction.ResizePresentation(ResizeDirection.Smaller),
+        val unchanged = repository.applyActions(
+            listOf(DiscoverPreferenceAction.ResizePresentation(ResizeDirection.Smaller)),
         )
 
-        val updated = assertIs<DiscoverPreferenceResult.Changed>(changed).preferences
+        val updated = changed.preferences
+        assertEquals(original, changed.previousPreferences)
+        assertEquals(true, changed.changed)
         assertEquals(DiscoverPresentation.ThumbnailRows, updated.presentation)
-        assertEquals(original.metadataVisibility, updated.metadataVisibility)
+        assertEquals(false, updated.metadataVisibility.showArtist)
+        assertEquals(false, updated.metadataVisibility.showDate)
         assertEquals(updated, repository.preferences.first())
         assertEquals(
             DiscoverPreferenceNoChangeReason.AlreadyAtSmallest,
-            assertIs<DiscoverPreferenceResult.Unchanged>(unchanged).reason,
+            assertIs<DiscoverPreferenceResult.Unchanged>(unchanged.actionResults.single()).reason,
         )
     }
 

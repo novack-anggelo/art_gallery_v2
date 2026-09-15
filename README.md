@@ -35,6 +35,7 @@ Implemented in the repository:
 - Content and skeletons support large (280 dp minimum) and compact (160 dp minimum) adaptive grids plus full-width thumbnail rows with 96 dp square images.
 - Typed Discover preferences combine presentation and metadata visibility, with deterministic rules for direct selection, bounded size steps, and metadata changes.
 - Discover preferences are stored locally with DataStore and exposed to the screen through `DiscoverViewModel`.
+- Preference actions can be reduced and persisted together as one atomic multi-action transaction.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
 These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
