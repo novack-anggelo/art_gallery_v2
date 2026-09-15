@@ -41,6 +41,30 @@ enum class DiscoverPreferenceNoChangeReason {
     AlreadyAtLargest,
 }
 
+data class DiscoverPreferenceTransactionResult(
+    val previousPreferences: DiscoverPreferences,
+    val preferences: DiscoverPreferences,
+    val actionResults: List<DiscoverPreferenceResult>,
+) {
+    val changed: Boolean = previousPreferences != preferences
+}
+
+fun DiscoverPreferences.apply(
+    actions: List<DiscoverPreferenceAction>,
+): DiscoverPreferenceTransactionResult {
+    var currentPreferences = this
+    val results = actions.map { action ->
+        currentPreferences.apply(action).also { result ->
+            currentPreferences = result.preferences
+        }
+    }
+    return DiscoverPreferenceTransactionResult(
+        previousPreferences = this,
+        preferences = currentPreferences,
+        actionResults = results,
+    )
+}
+
 fun DiscoverPreferences.apply(
     action: DiscoverPreferenceAction,
 ): DiscoverPreferenceResult = when (action) {

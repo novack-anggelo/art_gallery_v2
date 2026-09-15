@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceResult
+import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceTransactionResult
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.domain.model.apply
@@ -28,13 +28,13 @@ class DataStoreDiscoverPreferencesRepository(
         }
         .map(Preferences::toDomain)
 
-    override suspend fun applyAction(
-        action: DiscoverPreferenceAction,
-    ): DiscoverPreferenceResult {
-        lateinit var result: DiscoverPreferenceResult
+    override suspend fun applyActions(
+        actions: List<DiscoverPreferenceAction>,
+    ): DiscoverPreferenceTransactionResult {
+        lateinit var result: DiscoverPreferenceTransactionResult
         dataStore.edit { storedPreferences ->
-            result = storedPreferences.toDomain().apply(action)
-            if (result is DiscoverPreferenceResult.Changed) {
+            result = storedPreferences.toDomain().apply(actions)
+            if (result.changed) {
                 storedPreferences.write(result.preferences)
             }
         }
