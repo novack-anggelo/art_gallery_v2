@@ -1,0 +1,15 @@
+<resources>
+    <string name="unknown_artist">Unknown artist</string>
+    <string name="artwork_artist_and_date">%1$s · %2$s</string>
+    <string name="discover_title">Discover</string>
+    <string name="discover_brand">ART GALLERY</string>
+    <string name="discover_subtitle">Find a work that makes you pause.</string>
+    <string name="discover_loading">Loading artworks</string>
+    <string name="discover_error_title">Unable to load artworks</string>
+    <string name="discover_error_subtitle">Please try again</string>
+    <string name="discover_empty_title">No artworks available</string>
+    <string name="discover_empty_subtitle">Pull down to refresh.</string>
+    <string name="discover_refresh_error">Unable to refresh artworks</string>
+    <string name="discover_loading_more">Loading more artworks</string>
+    <string name="discover_append_error">Unable to load more artworks</string>
+</resources>

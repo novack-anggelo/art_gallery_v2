@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.novack.artgalleryv2.ui.feature.discover.DiscoverRoute
+import com.novack.artgalleryv2.feature.discover.presentation.DiscoverRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
