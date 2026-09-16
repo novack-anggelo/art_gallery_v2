@@ -1,13 +1,13 @@
 package com.novack.artgalleryv2.core.data.remote.model
 
-import com.novack.artgalleryv2.core.data.remote.di.provideJson
 import com.novack.artgalleryv2.core.data.remote.model.ArtworkPageDto
+import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class ArtworkPageDtoTest {
-    private val json = provideJson()
+    private val json = Json { ignoreUnknownKeys = true }
 
     @Test
     fun `artwork page response is deserialized`() {
