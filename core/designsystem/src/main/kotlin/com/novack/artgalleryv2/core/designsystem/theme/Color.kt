@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.ui.theme
+package com.novack.artgalleryv2.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 

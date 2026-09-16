@@ -7,8 +7,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
-import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
-import com.novack.artgalleryv2.ui.theme.Spacing
+import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
+import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 
 @Preview(name = "Loading", showBackground = true, widthDp = 360)
 @Preview(name = "Loading dark", showBackground = true, widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_YES)

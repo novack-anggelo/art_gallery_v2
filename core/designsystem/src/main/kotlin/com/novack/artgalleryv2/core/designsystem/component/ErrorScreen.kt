@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.ui.common
+package com.novack.artgalleryv2.core.designsystem.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,11 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.novack.artgalleryv2.R
-import com.novack.artgalleryv2.ui.theme.Spacing
+import com.novack.artgalleryv2.core.designsystem.R
+import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 
 @Composable
-internal fun ErrorScreen(
+fun ErrorScreen(
     title: String,
     onRetry: (() -> Unit)?,
     modifier: Modifier = Modifier,
@@ -44,7 +44,7 @@ internal fun ErrorScreen(
         onRetry?.let {
             Spacer(modifier = Modifier.height(Spacing.SizeM))
             Button(onClick = it) {
-                Text(text = stringResource(R.string.retry))
+                Text(text = stringResource(R.string.core_designsystem_retry))
             }
         }
     }

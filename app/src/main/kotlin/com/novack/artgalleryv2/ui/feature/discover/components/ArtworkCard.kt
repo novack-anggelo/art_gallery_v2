@@ -26,7 +26,7 @@ import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.ui.feature.discover.cardPadding
 import com.novack.artgalleryv2.ui.feature.discover.imageSize
-import com.novack.artgalleryv2.ui.theme.Spacing
+import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 
 @Composable
 internal fun ArtworkCard(

@@ -14,7 +14,7 @@ import androidx.paging.PagingState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.novack.artgalleryv2.core.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
+import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Rule

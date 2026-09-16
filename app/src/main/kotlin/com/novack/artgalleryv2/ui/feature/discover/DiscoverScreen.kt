@@ -49,11 +49,11 @@ import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
-import com.novack.artgalleryv2.ui.common.ErrorScreen
+import com.novack.artgalleryv2.core.designsystem.component.ErrorScreen
+import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCard
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCardSkeleton
 import com.novack.artgalleryv2.ui.feature.discover.components.DiscoverHeader
-import com.novack.artgalleryv2.ui.theme.Spacing
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
