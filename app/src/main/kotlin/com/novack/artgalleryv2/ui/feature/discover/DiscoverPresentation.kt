@@ -2,7 +2,7 @@ package com.novack.artgalleryv2.ui.feature.discover
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 
 internal val DiscoverPresentation.minimumCellWidth: Dp?

@@ -18,8 +18,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 import kotlin.math.abs
 import kotlinx.coroutines.flow.flowOf

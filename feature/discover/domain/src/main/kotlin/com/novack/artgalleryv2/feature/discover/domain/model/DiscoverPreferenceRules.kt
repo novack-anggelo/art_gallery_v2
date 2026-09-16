@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.core.domain.model
+package com.novack.artgalleryv2.feature.discover.domain.model
 
 sealed interface DiscoverPreferenceAction {
     data class SetPresentation(val presentation: DiscoverPresentation) : DiscoverPreferenceAction

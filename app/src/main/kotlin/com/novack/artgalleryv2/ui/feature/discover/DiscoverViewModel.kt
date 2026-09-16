@@ -3,10 +3,10 @@ package com.novack.artgalleryv2.ui.feature.discover
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceAction
 import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
-import com.novack.artgalleryv2.core.domain.usecase.CoordinateDiscoverPreferenceChangesUseCase
-import com.novack.artgalleryv2.core.domain.usecase.DiscoverPreferenceChangeOutcome
+import com.novack.artgalleryv2.feature.discover.domain.usecase.CoordinateDiscoverPreferenceChangesUseCase
+import com.novack.artgalleryv2.feature.discover.domain.usecase.DiscoverPreferenceChangeOutcome
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow

@@ -21,9 +21,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
 import com.novack.artgalleryv2.R
-import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
+import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.ui.feature.discover.cardPadding
 import com.novack.artgalleryv2.ui.feature.discover.imageSize
 import com.novack.artgalleryv2.core.designsystem.theme.Spacing

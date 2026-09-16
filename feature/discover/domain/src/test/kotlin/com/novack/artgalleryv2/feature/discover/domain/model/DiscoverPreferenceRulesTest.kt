@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.core.domain.model
+package com.novack.artgalleryv2.feature.discover.domain.model
 
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
