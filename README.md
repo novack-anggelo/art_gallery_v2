@@ -36,11 +36,12 @@ Implemented in the repository:
 - Typed Discover preferences combine presentation and metadata visibility, with deterministic rules for direct selection, bounded size steps, and metadata changes.
 - Discover preferences are stored locally with DataStore and exposed to the screen through `DiscoverViewModel`.
 - Preference actions can be reduced and persisted together as one atomic multi-action transaction.
+- `DiscoverViewModel` serializes preference operations and provides single-level undo plus an undoable reset to defaults.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
 These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
 
-The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase AI Logic, prompt-driven customization, and preference action coordination are not yet implemented.
+The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase AI Logic, prompt-driven customization UI, and user-facing preference results are not yet implemented.
 
 The content grid now handles `loadState.append`: it shows a loading indicator at the end while another page loads, shows an inline error with Retry calling `artworks.retry()` if it fails, and removes the indicator when loading finishes or the collection ends. Existing artworks remain visible. Both footers span all grid columns.
 
