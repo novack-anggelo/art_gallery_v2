@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
-import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
+import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.core.domain.usecase.CoordinateDiscoverPreferenceChangesUseCase
 import com.novack.artgalleryv2.core.domain.usecase.DiscoverPreferenceChangeOutcome
 import kotlinx.coroutines.flow.MutableSharedFlow

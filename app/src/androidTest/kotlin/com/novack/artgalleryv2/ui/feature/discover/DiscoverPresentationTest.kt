@@ -16,8 +16,8 @@ import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.novack.artgalleryv2.core.domain.model.ArtworkImage
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkImage
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme

@@ -3,7 +3,7 @@ package com.novack.artgalleryv2.core.data.paging
 import androidx.paging.PagingSource
 import com.novack.artgalleryv2.core.data.fakes.FakeArtInstituteApi
 import com.novack.artgalleryv2.core.data.fakes.artworkPage
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.io.IOException

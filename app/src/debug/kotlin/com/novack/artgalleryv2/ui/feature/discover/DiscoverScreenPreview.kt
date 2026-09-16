@@ -17,7 +17,7 @@ import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkPreviewProvider
 import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme

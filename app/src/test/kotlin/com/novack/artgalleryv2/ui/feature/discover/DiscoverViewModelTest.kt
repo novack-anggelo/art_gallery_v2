@@ -5,13 +5,13 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.domain.model.ResizeDirection
 import com.novack.artgalleryv2.core.domain.model.apply
-import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
+import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
 import com.novack.artgalleryv2.core.domain.usecase.CoordinateDiscoverPreferenceChangesUseCase
 import com.novack.artgalleryv2.core.testing.MainDispatcherRule

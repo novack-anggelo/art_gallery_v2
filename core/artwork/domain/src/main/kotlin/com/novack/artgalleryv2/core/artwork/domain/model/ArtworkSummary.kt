@@ -1,6 +1,6 @@
-package com.novack.artgalleryv2.core.domain.model
+package com.novack.artgalleryv2.core.artwork.domain.model
 
-internal data class ArtworkSummary(
+data class ArtworkSummary(
     val id: Int,
     val title: String,
     val artist: String?,
@@ -10,7 +10,7 @@ internal data class ArtworkSummary(
     val mediumDisplay: String? = null,
 )
 
-internal data class ArtworkImage(
+data class ArtworkImage(
     val url: String,
     val altText: String?,
     val aspectRatio: Float?,
