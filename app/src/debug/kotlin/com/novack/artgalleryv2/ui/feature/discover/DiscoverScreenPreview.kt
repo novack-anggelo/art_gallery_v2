@@ -15,8 +15,8 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkPreviewProvider

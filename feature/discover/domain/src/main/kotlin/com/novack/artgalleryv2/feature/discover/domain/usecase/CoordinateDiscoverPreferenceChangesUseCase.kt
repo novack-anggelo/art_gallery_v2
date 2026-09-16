@@ -1,11 +1,11 @@
-package com.novack.artgalleryv2.core.domain.usecase
+package com.novack.artgalleryv2.feature.discover.domain.usecase
 
-import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataField
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceResult
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
-import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
+import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataField
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceAction
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceResult
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

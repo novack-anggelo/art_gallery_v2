@@ -46,9 +46,9 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.novack.artgalleryv2.R
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataVisibility
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.designsystem.component.ErrorScreen
 import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 import com.novack.artgalleryv2.ui.feature.discover.components.ArtworkCard

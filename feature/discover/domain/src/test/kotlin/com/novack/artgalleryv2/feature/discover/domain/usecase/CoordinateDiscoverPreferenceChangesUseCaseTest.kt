@@ -1,12 +1,12 @@
-package com.novack.artgalleryv2.core.domain.usecase
+package com.novack.artgalleryv2.feature.discover.domain.usecase
 
-import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataField
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceTransactionResult
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
-import com.novack.artgalleryv2.core.domain.model.ResizeDirection
-import com.novack.artgalleryv2.core.domain.model.apply
-import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
+import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataField
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceAction
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceTransactionResult
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.model.ResizeDirection
+import com.novack.artgalleryv2.feature.discover.domain.model.apply
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesRepository
 import java.io.IOException
 import kotlin.math.max
 import kotlin.test.assertEquals

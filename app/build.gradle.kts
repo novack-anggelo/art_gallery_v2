@@ -30,6 +30,7 @@ dependencies {
     implementation(project(":core:artwork:domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
+    implementation(project(":feature:discover:domain"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

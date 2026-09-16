@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataVisibility
-import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataVisibility
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 

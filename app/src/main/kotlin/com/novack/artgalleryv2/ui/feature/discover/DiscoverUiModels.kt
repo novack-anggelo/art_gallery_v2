@@ -1,7 +1,7 @@
 package com.novack.artgalleryv2.ui.feature.discover
 
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceResult
-import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceResult
+import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 
 internal data class DiscoverUiState(
     val preferences: DiscoverPreferences = DiscoverPreferences(),
