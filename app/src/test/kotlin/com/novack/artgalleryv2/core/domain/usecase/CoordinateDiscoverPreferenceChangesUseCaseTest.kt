@@ -1,149 +1,100 @@
-package com.novack.artgalleryv2.ui.feature.discover
+package com.novack.artgalleryv2.core.domain.usecase
 
-import androidx.paging.PagingData
 import com.novack.artgalleryv2.core.domain.model.ArtworkMetadataField
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceAction
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferenceTransactionResult
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.ResizeDirection
 import com.novack.artgalleryv2.core.domain.model.apply
-import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
-import com.novack.artgalleryv2.test.MainDispatcherRule
-import io.mockk.every
-import io.mockk.mockk
 import java.io.IOException
 import kotlin.math.max
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
-class DiscoverPreferenceCoordinatorTest {
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
-
+class CoordinateDiscoverPreferenceChangesUseCaseTest {
     @Test
     fun `multiple actions create one undoable change`() = runTest {
         val repository = FakePreferencesRepository()
-        val viewModel = viewModel(repository)
-        val applied = resultFrom(viewModel) {
-            viewModel.applyPreferenceActions(listOf(resizeSmaller, hideDate))
-        }
-
-        assertIs<DiscoverPreferenceOperationResult.Applied>(applied)
-        assertEquals(true, viewModel.canUndo.value)
+        val useCase = CoordinateDiscoverPreferenceChangesUseCase(repository)
+        assertIs<DiscoverPreferenceChangeOutcome.Applied>(
+            useCase.apply(listOf(resizeSmaller, hideDate)),
+        )
+        assertEquals(true, useCase.isUndoPreferenceChangeAvailable.value)
         assertEquals(false, repository.value.metadataVisibility.showDate)
 
-        val undone = resultFrom(viewModel, viewModel::undoPreferenceChange)
-
-        assertEquals(DiscoverPreferenceOperation.Undo, undone.operation)
+        assertIs<DiscoverPreferenceChangeOutcome.Applied>(useCase.undoLastChange())
         assertEquals(DiscoverPreferences(), repository.value)
-        assertEquals(false, viewModel.canUndo.value)
+        assertEquals(false, useCase.isUndoPreferenceChangeAvailable.value)
     }
 
     @Test
     fun `no-op reset preserves undo for the previous reset`() = runTest {
         val original = DiscoverPreferences().apply(resizeSmaller).preferences
         val repository = FakePreferencesRepository(original)
-        val viewModel = viewModel(repository)
+        val useCase = CoordinateDiscoverPreferenceChangesUseCase(repository)
+        assertIs<DiscoverPreferenceChangeOutcome.Applied>(useCase.resetToDefaults())
+        assertIs<DiscoverPreferenceChangeOutcome.Unchanged>(useCase.resetToDefaults())
+        assertEquals(true, useCase.isUndoPreferenceChangeAvailable.value)
 
-        assertIs<DiscoverPreferenceOperationResult.Applied>(
-            resultFrom(viewModel, viewModel::resetPreferences),
-        )
-        assertIs<DiscoverPreferenceOperationResult.Unchanged>(
-            resultFrom(viewModel, viewModel::resetPreferences),
-        )
-        assertEquals(true, viewModel.canUndo.value)
-
-        resultFrom(viewModel, viewModel::undoPreferenceChange)
-
+        useCase.undoLastChange()
         assertEquals(original, repository.value)
     }
 
     @Test
     fun `latest successful change replaces the previous undo snapshot`() = runTest {
         val repository = FakePreferencesRepository()
-        val viewModel = viewModel(repository)
-        resultFrom(viewModel) { viewModel.applyPreferenceActions(listOf(resizeSmaller)) }
+        val useCase = CoordinateDiscoverPreferenceChangesUseCase(repository)
+        useCase.apply(listOf(resizeSmaller))
         val afterFirstChange = repository.value
-        resultFrom(viewModel) { viewModel.applyPreferenceActions(listOf(hideDate)) }
-
-        resultFrom(viewModel, viewModel::undoPreferenceChange)
+        useCase.apply(listOf(hideDate))
+        useCase.undoLastChange()
 
         assertEquals(afterFirstChange, repository.value)
-        assertEquals(false, viewModel.canUndo.value)
+        assertEquals(false, useCase.isUndoPreferenceChangeAvailable.value)
     }
 
     @Test
     fun `failed writes preserve preferences and existing undo`() = runTest {
         val repository = FakePreferencesRepository()
-        val viewModel = viewModel(repository)
-        resultFrom(viewModel) { viewModel.applyPreferenceActions(listOf(resizeSmaller)) }
+        val useCase = CoordinateDiscoverPreferenceChangesUseCase(repository)
+        useCase.apply(listOf(resizeSmaller))
         val beforeFailure = repository.value
         repository.failure = IOException("write failed")
-
-        assertIs<DiscoverPreferenceOperationResult.Failed>(
-            resultFrom(viewModel) { viewModel.applyPreferenceActions(listOf(hideDate)) },
-        )
-        assertIs<DiscoverPreferenceOperationResult.Failed>(
-            resultFrom(viewModel, viewModel::undoPreferenceChange),
-        )
+        assertIs<DiscoverPreferenceChangeOutcome.Failed>(useCase.apply(listOf(hideDate)))
+        assertIs<DiscoverPreferenceChangeOutcome.Failed>(useCase.undoLastChange())
         assertEquals(beforeFailure, repository.value)
-        assertEquals(true, viewModel.canUndo.value)
+        assertEquals(true, useCase.isUndoPreferenceChangeAvailable.value)
 
         repository.failure = null
-        resultFrom(viewModel, viewModel::undoPreferenceChange)
+        useCase.undoLastChange()
         assertEquals(DiscoverPreferences(), repository.value)
     }
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
     fun `preference operations are serialized`() = runTest {
         val repository = FakePreferencesRepository()
-        val viewModel = viewModel(repository)
+        val useCase = CoordinateDiscoverPreferenceChangesUseCase(repository)
         repository.gate = CompletableDeferred()
-
-        viewModel.applyPreferenceActions(listOf(resizeSmaller))
+        val first = async { useCase.apply(listOf(resizeSmaller)) }
         runCurrent()
-        viewModel.applyPreferenceActions(listOf(hideDate))
+        val second = async { useCase.apply(listOf(hideDate)) }
         runCurrent()
 
         assertEquals(1, repository.maximumConcurrentWrites)
         repository.gate?.complete(Unit)
-        advanceUntilIdle()
+        first.await()
+        second.await()
         assertEquals(1, repository.maximumConcurrentWrites)
         assertEquals(false, repository.value.metadataVisibility.showDate)
-    }
-
-    private fun viewModel(preferencesRepository: DiscoverPreferencesRepository): DiscoverViewModel {
-        val artworkRepository = mockk<ArtworkRepository>()
-        every { artworkRepository.getArtworks() } returns flowOf(PagingData.empty())
-        return DiscoverViewModel(artworkRepository, preferencesRepository)
-    }
-
-    private suspend fun TestScope.resultFrom(
-        viewModel: DiscoverViewModel,
-        operation: () -> Unit,
-    ): DiscoverPreferenceOperationResult {
-        val result = backgroundScope.async(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.preferenceOperationResults.first()
-        }
-        operation()
-        advanceUntilIdle()
-        return result.await()
     }
 
     private class FakePreferencesRepository(

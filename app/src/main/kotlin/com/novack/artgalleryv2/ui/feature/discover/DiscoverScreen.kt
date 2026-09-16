@@ -61,13 +61,13 @@ internal fun DiscoverRoute(
     onArtworkClick: (Int) -> Unit,
     viewModel: DiscoverViewModel = koinViewModel(),
 ) {
-    val artworks = viewModel.artworks.collectAsLazyPagingItems()
-    val preferences by viewModel.preferences.collectAsStateWithLifecycle()
+    val artworks = viewModel.pagedArtworks.collectAsLazyPagingItems()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     DiscoverScreen(
         artworks = artworks,
         onArtworkClick = onArtworkClick,
-        preferences = preferences,
+        preferences = uiState.preferences,
     )
 }
 
