@@ -14,7 +14,7 @@ import com.novack.artgalleryv2.core.domain.model.apply
 import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
 import com.novack.artgalleryv2.core.domain.usecase.CoordinateDiscoverPreferenceChangesUseCase
-import com.novack.artgalleryv2.test.MainDispatcherRule
+import com.novack.artgalleryv2.core.testing.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
