@@ -26,6 +26,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:artwork:domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
     implementation(platform(libs.androidx.compose.bom))

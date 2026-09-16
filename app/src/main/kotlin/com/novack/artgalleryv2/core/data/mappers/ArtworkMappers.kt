@@ -3,8 +3,8 @@ package com.novack.artgalleryv2.core.data.mappers
 import com.novack.artgalleryv2.core.data.remote.model.ArtworkPageDto
 import com.novack.artgalleryv2.core.data.remote.model.ArtworkSummaryDto
 import com.novack.artgalleryv2.core.data.remote.model.ArtworkThumbnailDto
-import com.novack.artgalleryv2.core.domain.model.ArtworkImage
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkImage
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 
 private const val OVERVIEW_IMAGE_WIDTH = 843
 

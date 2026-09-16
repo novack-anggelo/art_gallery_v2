@@ -6,8 +6,8 @@ import androidx.paging.PagingData
 import com.novack.artgalleryv2.core.data.paging.ARTWORK_PAGE_SIZE
 import com.novack.artgalleryv2.core.data.paging.ArtworkPagingSource
 import com.novack.artgalleryv2.core.data.remote.api.ArtInstituteApi
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
-import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
 import kotlinx.coroutines.flow.Flow
 
 internal class NetworkArtworkRepository(

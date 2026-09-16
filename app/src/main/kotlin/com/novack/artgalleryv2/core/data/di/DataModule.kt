@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.novack.artgalleryv2.core.data.local.DataStoreDiscoverPreferencesRepository
 import com.novack.artgalleryv2.core.data.repository.NetworkArtworkRepository
-import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
+import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind

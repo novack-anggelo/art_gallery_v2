@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import com.novack.artgalleryv2.core.data.mappers.toDomain
 import com.novack.artgalleryv2.core.data.remote.api.ArtInstituteApi
 import com.novack.artgalleryv2.core.data.remote.model.ArtworkPageDto
-import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
+import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import kotlin.coroutines.cancellation.CancellationException
 
 internal const val ARTWORK_PAGE_SIZE = 20

@@ -1,7 +1,7 @@
 package com.novack.artgalleryv2.di
 
 import android.content.Context
-import com.novack.artgalleryv2.core.domain.repository.ArtworkRepository
+import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.core.domain.repository.DiscoverPreferencesRepository
 import io.mockk.mockk
 import org.junit.Test
