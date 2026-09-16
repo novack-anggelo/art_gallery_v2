@@ -26,4 +26,5 @@ dependencyResolutionManagement {
 rootProject.name = "art_gallery_v2"
 include(":app")
 include(":core:designsystem")
+include(":core:network")
 include(":core:testing")
