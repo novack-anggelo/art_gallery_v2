@@ -36,7 +36,7 @@ Implemented in the repository:
 - Typed Discover preferences combine presentation and metadata visibility, with deterministic rules for direct selection, bounded size steps, and metadata changes.
 - Discover preferences are stored locally with DataStore and exposed to the screen through `DiscoverViewModel`.
 - Preference actions can be reduced and persisted together as one atomic multi-action transaction.
-- `DiscoverViewModel` serializes preference operations and provides single-level undo plus an undoable reset to defaults.
+- A preference-change use case serializes operations and provides single-level undo plus an undoable reset; `DiscoverViewModel` exposes consolidated UI state and transient effects.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
 These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
