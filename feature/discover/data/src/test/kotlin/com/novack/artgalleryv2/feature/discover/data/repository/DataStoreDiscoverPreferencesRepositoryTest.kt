@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.core.data.local
+package com.novack.artgalleryv2.feature.discover.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
