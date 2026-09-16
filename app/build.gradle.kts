@@ -72,6 +72,7 @@ dependencies {
     implementation(libs.coil.network.okhttp)
 
 // Local tests
+    testImplementation(project(":core:testing"))
     testImplementation(libs.koin.test.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.paging.testing)

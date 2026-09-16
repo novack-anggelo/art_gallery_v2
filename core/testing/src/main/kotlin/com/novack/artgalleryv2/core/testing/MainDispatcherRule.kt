@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.test
+package com.novack.artgalleryv2.core.testing
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
