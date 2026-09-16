@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
-import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
+import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 
 internal class HeaderCollapsePreviewProvider : CollectionPreviewParameterProvider<Float>(
     listOf(0f, 0.5f, 1f)

@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.novack.artgalleryv2.R
-import com.novack.artgalleryv2.ui.theme.Spacing
+import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)

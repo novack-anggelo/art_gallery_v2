@@ -7,7 +7,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.test.junit4.createComposeRule
-import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
+import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule

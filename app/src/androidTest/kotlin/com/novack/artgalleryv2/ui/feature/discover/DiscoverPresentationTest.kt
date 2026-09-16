@@ -20,7 +20,7 @@ import com.novack.artgalleryv2.core.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.core.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.core.domain.model.DiscoverPresentation
-import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
+import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 import kotlin.math.abs
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Assert.assertTrue

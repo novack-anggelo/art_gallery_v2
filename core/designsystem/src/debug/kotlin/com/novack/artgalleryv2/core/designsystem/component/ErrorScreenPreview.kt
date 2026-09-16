@@ -1,4 +1,4 @@
-package com.novack.artgalleryv2.ui.common
+package com.novack.artgalleryv2.core.designsystem.component
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
-import com.novack.artgalleryv2.ui.theme.Art_gallery_v2Theme
-import com.novack.artgalleryv2.ui.theme.Spacing
+import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
+import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 
 internal data class ErrorPreviewCase(
     val title: String,
