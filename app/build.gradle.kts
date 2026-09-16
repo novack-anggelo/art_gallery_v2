@@ -26,6 +26,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:artwork:data"))
     implementation(project(":core:artwork:domain"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
@@ -50,12 +51,8 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-// Networking
-    implementation(platform(libs.retrofit.bom))
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.kotlinx.serialization)
+// Serialization
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.okhttp.logging)
 
 // Lifecycle and navigation
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -78,6 +75,5 @@ dependencies {
     testImplementation(libs.koin.test.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.paging.testing)
-    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.mockk)
 }
