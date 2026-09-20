@@ -13,13 +13,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import coil3.compose.AsyncImage
+import coil3.network.httpHeaders
+import coil3.request.ImageRequest
 import com.novack.artgalleryv2.feature.discover.presentation.R
 import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
@@ -45,9 +49,16 @@ internal fun ArtworkCard(
             presentation.imageSize?.let { size -> it.size(size) }
                 ?: it.fillMaxWidth().aspectRatio(1f)
         }
+        val context = LocalContext.current
+        val imageRequest = remember(context, artworkSummary.image) {
+            ImageRequest.Builder(context)
+                .data(artworkSummary.image.url)
+                .httpHeaders(artworkSummary.image.networkHeaders())
+                .build()
+        }
         val content: @Composable (Modifier) -> Unit = { footerModifier ->
             AsyncImage(
-                model = artworkSummary.image.url,
+                model = imageRequest,
                 contentDescription = artworkSummary.image.altText,
                 contentScale = ContentScale.Fit,
                 placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),

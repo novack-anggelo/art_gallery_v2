@@ -10,13 +10,17 @@ private const val OVERVIEW_IMAGE_WIDTH = 843
 
 internal fun ArtworkPageDto.toDomain(): List<ArtworkSummary> =
     data.mapNotNull { artwork ->
-        artwork.toDomainOrNull(iiifBaseUrl = config.iiifUrl)
+        artwork.toDomainOrNull(
+            iiifBaseUrl = config.iiifUrl,
+            sourceWebsiteUrl = config.websiteUrl,
+        )
     }
 
 internal fun ArtworkSummaryDto.toDomainOrNull(
-    iiifBaseUrl: String
+    iiifBaseUrl: String,
+    sourceWebsiteUrl: String? = null,
 ): ArtworkSummary? {
-    val image = toArtworkImage(iiifBaseUrl) ?: return null
+    val image = toArtworkImage(iiifBaseUrl, sourceWebsiteUrl) ?: return null
 
     return ArtworkSummary(
         id = id,
@@ -30,7 +34,8 @@ internal fun ArtworkSummaryDto.toDomainOrNull(
 }
 
 private fun ArtworkSummaryDto.toArtworkImage(
-    iiifBaseUrl: String
+    iiifBaseUrl: String,
+    sourceWebsiteUrl: String?,
 ): ArtworkImage? {
     val validImageId = imageId?.takeIf(String::isNotBlank)
         ?: return null
@@ -48,6 +53,7 @@ private fun ArtworkSummaryDto.toArtworkImage(
         },
         altText = thumbnail?.altText?.takeIf(String::isNotBlank),
         aspectRatio = thumbnail.toAspectRatio(),
+        sourceWebsiteUrl = sourceWebsiteUrl?.takeIf(String::isNotBlank),
     )
 }
 

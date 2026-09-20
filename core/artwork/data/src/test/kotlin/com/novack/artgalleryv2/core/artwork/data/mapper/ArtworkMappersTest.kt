@@ -41,6 +41,7 @@ class ArtworkMappersTest {
             ),
             config = ApiConfigDto(
                 iiifUrl = "https://www.artic.edu/iiif/2/",
+                websiteUrl = "https://www.artic.edu",
             ),
         )
 
@@ -58,6 +59,7 @@ class ArtworkMappersTest {
                     "full/843,/0/default.jpg",
             artwork.image.url,
         )
+        assertEquals("https://www.artic.edu", artwork.image.sourceWebsiteUrl)
         assertEquals(
             843f / 563f,
             artwork.image.aspectRatio,

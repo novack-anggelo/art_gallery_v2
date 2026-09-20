@@ -14,4 +14,5 @@ data class ArtworkImage(
     val url: String,
     val altText: String?,
     val aspectRatio: Float?,
+    val sourceWebsiteUrl: String? = null,
 )
