@@ -24,4 +24,6 @@ internal data class PaginationDto(
 internal data class ApiConfigDto(
     @SerialName("iiif_url")
     val iiifUrl: String,
+    @SerialName("website_url")
+    val websiteUrl: String? = null,
 )

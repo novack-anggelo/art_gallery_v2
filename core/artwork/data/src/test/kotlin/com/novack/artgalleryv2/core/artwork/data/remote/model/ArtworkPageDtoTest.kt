@@ -25,6 +25,7 @@ class ArtworkPageDtoTest {
             "https://www.artic.edu/iiif/2",
             result.config.iiifUrl,
         )
+        assertEquals("https://www.artic.edu", result.config.websiteUrl)
 
         val artwork = result.data.first()
 
