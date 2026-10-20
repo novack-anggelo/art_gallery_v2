@@ -2,6 +2,7 @@ plugins {
     id("artgallery.android.application")
     id("artgallery.android.compose")
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -37,6 +38,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui)
+    implementation(platform(libs.firebase.bom))
+    debugImplementation(libs.firebase.appcheck.debug)
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
 
