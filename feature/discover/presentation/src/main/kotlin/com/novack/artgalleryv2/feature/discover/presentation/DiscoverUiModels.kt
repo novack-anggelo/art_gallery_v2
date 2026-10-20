@@ -2,10 +2,13 @@ package com.novack.artgalleryv2.feature.discover.presentation
 
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceResult
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 
 internal data class DiscoverUiState(
     val preferences: DiscoverPreferences = DiscoverPreferences(),
     val isUndoPreferenceChangeAvailable: Boolean = false,
+    val preferenceStorageStatus: DiscoverPreferencesStorageStatus =
+        DiscoverPreferencesStorageStatus.Loading,
 )
 
 internal enum class DiscoverPreferenceRequestSource {
@@ -27,8 +30,7 @@ internal sealed interface DiscoverUiEffect {
         val actionResults: List<DiscoverPreferenceResult>,
     ) : DiscoverUiEffect
 
-    data class PreferenceChangeFailed(
+    data class PreferenceStorageUnavailable(
         override val source: DiscoverPreferenceRequestSource,
-        val cause: Throwable,
     ) : DiscoverUiEffect
 }

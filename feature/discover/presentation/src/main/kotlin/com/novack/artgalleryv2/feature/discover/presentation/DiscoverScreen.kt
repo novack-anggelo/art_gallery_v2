@@ -49,12 +49,15 @@ import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 import com.novack.artgalleryv2.core.designsystem.component.ErrorScreen
 import com.novack.artgalleryv2.core.designsystem.theme.Spacing
 import com.novack.artgalleryv2.feature.discover.presentation.components.ArtworkCard
 import com.novack.artgalleryv2.feature.discover.presentation.components.ArtworkCardSkeleton
 import com.novack.artgalleryv2.feature.discover.presentation.components.DiscoverHeader
 import org.koin.androidx.compose.koinViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 @Composable
 fun DiscoverRoute(
@@ -78,6 +81,8 @@ internal fun DiscoverRoute(
         artworks = artworks,
         onArtworkClick = onArtworkClick,
         preferences = uiState.preferences,
+        preferenceStorageStatus = uiState.preferenceStorageStatus,
+        uiEffects = viewModel.uiEffects,
     )
 }
 
@@ -87,6 +92,9 @@ internal fun DiscoverScreen(
     artworks: LazyPagingItems<ArtworkSummary>,
     onArtworkClick: (Int) -> Unit,
     preferences: DiscoverPreferences = DiscoverPreferences(),
+    preferenceStorageStatus: DiscoverPreferencesStorageStatus =
+        DiscoverPreferencesStorageStatus.Available,
+    uiEffects: Flow<DiscoverUiEffect> = emptyFlow(),
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         state = rememberTopAppBarState(),
@@ -96,6 +104,21 @@ internal fun DiscoverScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var pullRequested by remember { mutableStateOf(false) }
     val refreshErrorMessage = stringResource(R.string.discover_refresh_error)
+    val preferenceReadErrorMessage = stringResource(R.string.discover_preferences_read_error)
+    val preferenceWriteErrorMessage = stringResource(R.string.discover_preferences_write_error)
+
+    LaunchedEffect(preferenceStorageStatus) {
+        if (preferenceStorageStatus == DiscoverPreferencesStorageStatus.Unavailable) {
+            snackbarHostState.showSnackbar(preferenceReadErrorMessage)
+        }
+    }
+    LaunchedEffect(uiEffects) {
+        uiEffects.collect { effect ->
+            if (effect is DiscoverUiEffect.PreferenceStorageUnavailable) {
+                snackbarHostState.showSnackbar(preferenceWriteErrorMessage)
+            }
+        }
+    }
 
     // A new Loading → Error transition can show another snackbar after the next pull.
     LaunchedEffect(refreshState) {

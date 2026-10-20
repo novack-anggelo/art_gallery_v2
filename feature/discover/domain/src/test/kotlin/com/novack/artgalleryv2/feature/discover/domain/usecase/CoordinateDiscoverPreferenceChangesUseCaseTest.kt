@@ -7,7 +7,10 @@ import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.feature.discover.domain.model.ResizeDirection
 import com.novack.artgalleryv2.feature.discover.domain.model.apply
 import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesRepository
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageResult
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -15,6 +18,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -68,14 +72,23 @@ class CoordinateDiscoverPreferenceChangesUseCaseTest {
         useCase.apply(listOf(resizeSmaller))
         val beforeFailure = repository.value
         repository.failure = IOException("write failed")
-        assertIs<DiscoverPreferenceChangeOutcome.Failed>(useCase.apply(listOf(hideDate)))
-        assertIs<DiscoverPreferenceChangeOutcome.Failed>(useCase.undoLastChange())
+        assertIs<DiscoverPreferenceChangeOutcome.StorageUnavailable>(
+            useCase.apply(listOf(hideDate)),
+        )
+        assertIs<DiscoverPreferenceChangeOutcome.StorageUnavailable>(useCase.undoLastChange())
         assertEquals(beforeFailure, repository.value)
         assertEquals(true, useCase.isUndoPreferenceChangeAvailable.value)
 
         repository.failure = null
         useCase.undoLastChange()
         assertEquals(DiscoverPreferences(), repository.value)
+    }
+
+    @Test(expected = CancellationException::class)
+    fun `cancellation is propagated`() = runTest {
+        val repository = FakePreferencesRepository().apply { cancelled = true }
+
+        CoordinateDiscoverPreferenceChangesUseCase(repository).apply(listOf(resizeSmaller))
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -102,7 +115,10 @@ class CoordinateDiscoverPreferenceChangesUseCaseTest {
     ) : DiscoverPreferencesRepository {
         private val storedPreferences = MutableStateFlow(initialPreferences)
         override val preferences: Flow<DiscoverPreferences> = storedPreferences
+        private val mutableStorageStatus = MutableStateFlow(DiscoverPreferencesStorageStatus.Available)
+        override val storageStatus: StateFlow<DiscoverPreferencesStorageStatus> = mutableStorageStatus
         var failure: IOException? = null
+        var cancelled = false
         var gate: CompletableDeferred<Unit>? = null
         var maximumConcurrentWrites = 0
         private var concurrentWrites = 0
@@ -110,23 +126,26 @@ class CoordinateDiscoverPreferenceChangesUseCaseTest {
 
         override suspend fun applyActions(
             actions: List<DiscoverPreferenceAction>,
-        ): DiscoverPreferenceTransactionResult = write {
+        ): DiscoverPreferencesStorageResult<DiscoverPreferenceTransactionResult> = write {
             storedPreferences.value.apply(actions).also { result ->
                 if (result.changed) storedPreferences.value = result.preferences
             }
         }
 
-        override suspend fun replace(preferences: DiscoverPreferences) {
-            write { storedPreferences.value = preferences }
-        }
+        override suspend fun replace(
+            preferences: DiscoverPreferences,
+        ): DiscoverPreferencesStorageResult<Unit> = write { storedPreferences.value = preferences }
 
-        private suspend fun <T> write(block: () -> T): T {
+        private suspend fun <T> write(
+            block: () -> T,
+        ): DiscoverPreferencesStorageResult<T> {
             concurrentWrites++
             maximumConcurrentWrites = max(maximumConcurrentWrites, concurrentWrites)
             try {
                 gate?.await()
-                failure?.let { throw it }
-                return block()
+                if (cancelled) throw CancellationException()
+                if (failure != null) return DiscoverPreferencesStorageResult.Unavailable
+                return DiscoverPreferencesStorageResult.Success(block())
             } finally {
                 concurrentWrites--
             }

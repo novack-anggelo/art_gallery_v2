@@ -26,6 +26,7 @@ internal class DiscoverViewModel(
     val uiState = combine(
         coordinatePreferenceChanges.preferences,
         coordinatePreferenceChanges.isUndoPreferenceChangeAvailable,
+        coordinatePreferenceChanges.storageStatus,
         ::DiscoverUiState,
     ).stateIn(
         scope = viewModelScope,
@@ -62,8 +63,8 @@ internal class DiscoverViewModel(
                     DiscoverUiEffect.PreferenceChangeApplied(source, outcome.preferences)
                 is DiscoverPreferenceChangeOutcome.Unchanged ->
                     DiscoverUiEffect.PreferenceChangeUnchanged(source, outcome.actionResults)
-                is DiscoverPreferenceChangeOutcome.Failed ->
-                    DiscoverUiEffect.PreferenceChangeFailed(source, outcome.cause)
+                DiscoverPreferenceChangeOutcome.StorageUnavailable ->
+                    DiscoverUiEffect.PreferenceStorageUnavailable(source)
             }
             _uiEffects.emit(effect)
         }

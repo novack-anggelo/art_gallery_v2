@@ -13,6 +13,8 @@ import com.novack.artgalleryv2.feature.discover.domain.model.ResizeDirection
 import com.novack.artgalleryv2.feature.discover.domain.model.apply
 import com.novack.artgalleryv2.core.artwork.domain.repository.ArtworkRepository
 import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesRepository
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageResult
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 import com.novack.artgalleryv2.feature.discover.domain.usecase.CoordinateDiscoverPreferenceChangesUseCase
 import com.novack.artgalleryv2.core.testing.MainDispatcherRule
 import io.mockk.coEvery
@@ -40,6 +42,8 @@ class DiscoverViewModelTest {
         val preferencesRepository: DiscoverPreferencesRepository = mockk()
         val artworks: List<ArtworkSummary> = listOf(mockk())
         every { preferencesRepository.preferences } returns flowOf(DiscoverPreferences())
+        every { preferencesRepository.storageStatus } returns
+            MutableStateFlow(DiscoverPreferencesStorageStatus.Available)
         val pagingData = PagingData.from(
             data = artworks,
             sourceLoadStates = LoadStates(
@@ -70,6 +74,8 @@ class DiscoverViewModelTest {
         val expected = DiscoverPreferences(presentation = DiscoverPresentation.ThumbnailRows)
         every { artworkRepository.getArtworks() } returns flowOf(PagingData.empty())
         every { preferencesRepository.preferences } returns flowOf(expected)
+        every { preferencesRepository.storageStatus } returns
+            MutableStateFlow(DiscoverPreferencesStorageStatus.Available)
         val viewModel = DiscoverViewModel(
             artworkRepository,
             CoordinateDiscoverPreferenceChangesUseCase(preferencesRepository),
@@ -77,7 +83,10 @@ class DiscoverViewModelTest {
 
         try {
             assertEquals(
-                DiscoverUiState(preferences = expected),
+                DiscoverUiState(
+                    preferences = expected,
+                    preferenceStorageStatus = DiscoverPreferencesStorageStatus.Available,
+                ),
                 viewModel.uiState.first { it.preferences == expected },
             )
         } finally {
@@ -95,9 +104,11 @@ class DiscoverViewModelTest {
         val result = preferences.value.apply(listOf(action))
         every { artworkRepository.getArtworks() } returns flowOf(PagingData.empty())
         every { preferencesRepository.preferences } returns preferences
+        every { preferencesRepository.storageStatus } returns
+            MutableStateFlow(DiscoverPreferencesStorageStatus.Available)
         coEvery { preferencesRepository.applyActions(listOf(action)) } answers {
             preferences.value = result.preferences
-            result
+            DiscoverPreferencesStorageResult.Success(result)
         }
         val viewModel = DiscoverViewModel(
             artworkRepository,
@@ -114,6 +125,39 @@ class DiscoverViewModelTest {
                 DiscoverUiEffect.PreferenceChangeApplied(
                     DiscoverPreferenceRequestSource.Customization,
                     result.preferences,
+                ),
+                effect.await(),
+            )
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun `storage failure is exposed without a throwable`() = runTest {
+        val artworkRepository: ArtworkRepository = mockk()
+        val preferencesRepository: DiscoverPreferencesRepository = mockk()
+        every { artworkRepository.getArtworks() } returns flowOf(PagingData.empty())
+        every { preferencesRepository.preferences } returns flowOf(DiscoverPreferences())
+        every { preferencesRepository.storageStatus } returns
+            MutableStateFlow(DiscoverPreferencesStorageStatus.Available)
+        coEvery { preferencesRepository.applyActions(any()) } returns
+            DiscoverPreferencesStorageResult.Unavailable
+        val viewModel = DiscoverViewModel(
+            artworkRepository,
+            CoordinateDiscoverPreferenceChangesUseCase(preferencesRepository),
+        )
+
+        try {
+            val effect = backgroundScope.async(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.uiEffects.first()
+            }
+            viewModel.applyDiscoverPreferenceActions(emptyList())
+
+            assertEquals(
+                DiscoverUiEffect.PreferenceStorageUnavailable(
+                    DiscoverPreferenceRequestSource.Customization,
                 ),
                 effect.await(),
             )
