@@ -18,3 +18,4 @@ local.properties
 /.idea/deviceManager.xml
 /.idea/androidTestResultsUserPreferences.xml
 /.idea/dictionaries/project.xml
+/.idea/kotlinc.xml
