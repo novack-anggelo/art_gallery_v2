@@ -12,4 +12,6 @@
     <string name="discover_refresh_error">Unable to refresh artworks</string>
     <string name="discover_loading_more">Loading more artworks</string>
     <string name="discover_append_error">Unable to load more artworks</string>
+    <string name="discover_preferences_read_error">Saved Discover settings are unavailable. Using defaults for now.</string>
+    <string name="discover_preferences_write_error">Unable to save Discover settings. Please try again.</string>
 </resources>

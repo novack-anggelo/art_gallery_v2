@@ -20,9 +20,13 @@ import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkImage
 import com.novack.artgalleryv2.core.artwork.domain.model.ArtworkSummary
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 import com.novack.artgalleryv2.core.designsystem.theme.Art_gallery_v2Theme
 import kotlin.math.abs
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -78,7 +82,37 @@ class DiscoverPresentationTest {
         assertTrue(abs((topBeforeChange - topAfterChange).value) < 1f)
     }
 
+    @Test
+    fun unavailablePreferenceStorageShowsNonBlockingWarning() {
+        showGrid(storageStatus = DiscoverPreferencesStorageStatus.Unavailable)
+
+        compose.onNodeWithText(
+            "Saved Discover settings are unavailable. Using defaults for now.",
+        ).assertIsDisplayed()
+        compose.onNodeWithText("Artwork 0").assertIsDisplayed()
+    }
+
+    @Test
+    fun preferenceWriteFailureShowsNonBlockingWarning() {
+        val effects = MutableSharedFlow<DiscoverUiEffect>(replay = 1)
+        showGrid(uiEffects = effects)
+
+        effects.tryEmit(
+            DiscoverUiEffect.PreferenceStorageUnavailable(
+                DiscoverPreferenceRequestSource.Customization,
+            ),
+        )
+
+        compose.onNodeWithText(
+            "Unable to save Discover settings. Please try again.",
+        ).assertIsDisplayed()
+        compose.onNodeWithText("Artwork 0").assertIsDisplayed()
+    }
+
     private fun showGrid(
+        storageStatus: DiscoverPreferencesStorageStatus =
+            DiscoverPreferencesStorageStatus.Available,
+        uiEffects: Flow<DiscoverUiEffect> = emptyFlow(),
         presentation: (() -> DiscoverPresentation)? = null,
     ) {
         val artworkFlow = flowOf(PagingData.from(artworks))
@@ -87,12 +121,19 @@ class DiscoverPresentationTest {
             Art_gallery_v2Theme {
                 Box(Modifier.width(360.dp).height(700.dp)) {
                     if (presentation == null) {
-                        DiscoverScreen(pagingItems, onArtworkClick = {})
+                        DiscoverScreen(
+                            pagingItems,
+                            onArtworkClick = {},
+                            preferenceStorageStatus = storageStatus,
+                            uiEffects = uiEffects,
+                        )
                     } else {
                         DiscoverScreen(
                             artworks = pagingItems,
                             onArtworkClick = {},
                             preferences = DiscoverPreferences(presentation = presentation()),
+                            preferenceStorageStatus = storageStatus,
+                            uiEffects = uiEffects,
                         )
                     }
                 }

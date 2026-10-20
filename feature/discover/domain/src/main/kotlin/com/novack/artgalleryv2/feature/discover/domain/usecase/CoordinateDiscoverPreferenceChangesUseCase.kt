@@ -6,7 +6,7 @@ import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceR
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesRepository
-import kotlinx.coroutines.CancellationException
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
@@ -17,7 +17,7 @@ sealed interface DiscoverPreferenceChangeOutcome {
     data class Unchanged(
         val actionResults: List<DiscoverPreferenceResult>,
     ) : DiscoverPreferenceChangeOutcome
-    data class Failed(val cause: Throwable) : DiscoverPreferenceChangeOutcome
+    data object StorageUnavailable : DiscoverPreferenceChangeOutcome
 }
 
 class CoordinateDiscoverPreferenceChangesUseCase(
@@ -28,6 +28,7 @@ class CoordinateDiscoverPreferenceChangesUseCase(
     private val _isUndoPreferenceChangeAvailable = MutableStateFlow(false)
 
     val preferences = repository.preferences
+    val storageStatus = repository.storageStatus
     val isUndoPreferenceChangeAvailable = _isUndoPreferenceChangeAvailable.asStateFlow()
 
     suspend fun apply(
@@ -43,35 +44,32 @@ class CoordinateDiscoverPreferenceChangesUseCase(
     suspend fun undoLastChange(): DiscoverPreferenceChangeOutcome = mutex.withLock {
         val preferencesToRestore = undoPreferences
             ?: return@withLock DiscoverPreferenceChangeOutcome.Unchanged(emptyList())
-        try {
-            repository.replace(preferencesToRestore)
-            undoPreferences = null
-            _isUndoPreferenceChangeAvailable.value = false
-            DiscoverPreferenceChangeOutcome.Applied(preferencesToRestore)
-        } catch (error: Exception) {
-            error.asFailure()
+        when (repository.replace(preferencesToRestore)) {
+            is DiscoverPreferencesStorageResult.Success -> {
+                undoPreferences = null
+                _isUndoPreferenceChangeAvailable.value = false
+                DiscoverPreferenceChangeOutcome.Applied(preferencesToRestore)
+            }
+            DiscoverPreferencesStorageResult.Unavailable ->
+                DiscoverPreferenceChangeOutcome.StorageUnavailable
         }
     }
 
     private suspend fun applyActions(
         actions: List<DiscoverPreferenceAction>,
-    ): DiscoverPreferenceChangeOutcome = try {
-        val result = repository.applyActions(actions)
-        if (result.changed) {
-            undoPreferences = result.previousPreferences
-            _isUndoPreferenceChangeAvailable.value = true
-            DiscoverPreferenceChangeOutcome.Applied(result.preferences)
-        } else {
-            DiscoverPreferenceChangeOutcome.Unchanged(result.actionResults)
+    ): DiscoverPreferenceChangeOutcome = when (val storageResult = repository.applyActions(actions)) {
+        is DiscoverPreferencesStorageResult.Success -> storageResult.value.let { result ->
+            if (result.changed) {
+                undoPreferences = result.previousPreferences
+                _isUndoPreferenceChangeAvailable.value = true
+                DiscoverPreferenceChangeOutcome.Applied(result.preferences)
+            } else {
+                DiscoverPreferenceChangeOutcome.Unchanged(result.actionResults)
+            }
         }
-    } catch (error: Exception) {
-        error.asFailure()
+        DiscoverPreferencesStorageResult.Unavailable ->
+            DiscoverPreferenceChangeOutcome.StorageUnavailable
     }
-}
-
-private fun Exception.asFailure(): DiscoverPreferenceChangeOutcome.Failed {
-    if (this is CancellationException) throw this
-    return DiscoverPreferenceChangeOutcome.Failed(this)
 }
 
 private val resetActions = listOf(

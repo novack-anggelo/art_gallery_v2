@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.mutablePreferencesOf
 import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataField
 import com.novack.artgalleryv2.feature.discover.domain.model.ArtworkMetadataVisibility
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceAction
@@ -14,11 +16,19 @@ import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferenceR
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.feature.discover.domain.model.ResizeDirection
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageResult
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 import java.io.File
+import java.io.IOException
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -79,10 +89,10 @@ class DataStoreDiscoverPreferencesRepositoryTest {
                     visible = false,
                 ),
             ),
-        )
+        ).successValue()
         val unchanged = repository.applyActions(
             listOf(DiscoverPreferenceAction.ResizePresentation(ResizeDirection.Smaller)),
-        )
+        ).successValue()
 
         val updated = changed.preferences
         assertEquals(original, changed.previousPreferences)
@@ -127,6 +137,56 @@ class DataStoreDiscoverPreferencesRepositoryTest {
         assertEquals(expected, recreatedRepository.preferences.first())
     }
 
+    @Test
+    fun `read failure emits defaults then recovers`() = runTest {
+        val recoveredPreferences = mutablePreferencesOf().apply {
+            this[stringPreferencesKey("discover_presentation")] = "thumbnail_rows"
+        }
+        val repository = DataStoreDiscoverPreferencesRepository(
+            FailingDataStore(recoveredPreferences),
+        )
+        val statuses = mutableListOf<DiscoverPreferencesStorageStatus>()
+
+        val values = repository.preferences
+            .onEach { statuses += repository.storageStatus.value }
+            .take(2)
+            .toList()
+
+        assertEquals(DiscoverPreferences(), values.first())
+        assertEquals(DiscoverPresentation.ThumbnailRows, values.last().presentation)
+        assertEquals(
+            listOf(
+                DiscoverPreferencesStorageStatus.Unavailable,
+                DiscoverPreferencesStorageStatus.Available,
+            ),
+            statuses,
+        )
+    }
+
+    @Test
+    fun `writes are rejected while storage is unavailable`() = runTest {
+        val repository = DataStoreDiscoverPreferencesRepository(
+            FailingDataStore(emptyPreferences()),
+        )
+        repository.preferences.first()
+
+        assertIs<DiscoverPreferencesStorageResult.Unavailable>(
+            repository.replace(DiscoverPreferences()),
+        )
+    }
+
+    @Test
+    fun `write IO failure is returned as unavailable`() = runTest {
+        val repository = DataStoreDiscoverPreferencesRepository(
+            FailingDataStore(emptyPreferences(), failFirstRead = false, failWrites = true),
+        )
+        repository.preferences.first()
+
+        assertIs<DiscoverPreferencesStorageResult.Unavailable>(
+            repository.replace(DiscoverPreferences()),
+        )
+    }
+
     private fun TestScope.repository(scope: CoroutineScope) =
         DataStoreDiscoverPreferencesRepository(dataStore(scope))
 
@@ -138,4 +198,26 @@ class DataStoreDiscoverPreferencesRepositoryTest {
 
     private fun preferencesFile(): File =
         temporaryFolder.newFolder().resolve("discover.preferences_pb")
+
+    private fun <T> DiscoverPreferencesStorageResult<T>.successValue(): T =
+        assertIs<DiscoverPreferencesStorageResult.Success<T>>(this).value
+
+    private class FailingDataStore(
+        private val recoveredPreferences: Preferences,
+        private val failFirstRead: Boolean = true,
+        private val failWrites: Boolean = false,
+    ) : DataStore<Preferences> {
+        private var reads = 0
+        override val data: Flow<Preferences> = flow {
+            if (failFirstRead && reads++ == 0) throw IOException("read failed")
+            emit(recoveredPreferences)
+        }
+
+        override suspend fun updateData(
+            transform: suspend (t: Preferences) -> Preferences,
+        ): Preferences {
+            if (failWrites) throw IOException("write failed")
+            return transform(recoveredPreferences)
+        }
+    }
 }

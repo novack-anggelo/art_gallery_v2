@@ -14,37 +14,75 @@ import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPreferences
 import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentation
 import com.novack.artgalleryv2.feature.discover.domain.model.apply
 import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesRepository
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageResult
+import com.novack.artgalleryv2.feature.discover.domain.repository.DiscoverPreferencesStorageStatus
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.min
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retryWhen
 
 class DataStoreDiscoverPreferencesRepository(
     private val dataStore: DataStore<Preferences>,
 ) : DiscoverPreferencesRepository {
+    private val _storageStatus = MutableStateFlow(DiscoverPreferencesStorageStatus.Loading)
+    override val storageStatus = _storageStatus.asStateFlow()
+
     override val preferences: Flow<DiscoverPreferences> = dataStore.data
-        .catch { error ->
-            if (error is IOException) emit(emptyPreferences()) else throw error
+        .onEach { _storageStatus.value = DiscoverPreferencesStorageStatus.Available }
+        .retryWhen { error, attempt ->
+            if (error !is IOException) return@retryWhen false
+            _storageStatus.value = DiscoverPreferencesStorageStatus.Unavailable
+            emit(emptyPreferences())
+            delay(min(attempt + 1, MAX_RETRY_SECONDS) * MILLIS_PER_SECOND)
+            true
         }
         .map(Preferences::toDomain)
 
     override suspend fun applyActions(
         actions: List<DiscoverPreferenceAction>,
-    ): DiscoverPreferenceTransactionResult {
-        lateinit var result: DiscoverPreferenceTransactionResult
-        dataStore.edit { storedPreferences ->
-            result = storedPreferences.toDomain().apply(actions)
-            if (result.changed) {
-                storedPreferences.write(result.preferences)
-            }
+    ): DiscoverPreferencesStorageResult<DiscoverPreferenceTransactionResult> {
+        if (_storageStatus.value == DiscoverPreferencesStorageStatus.Unavailable) {
+            return DiscoverPreferencesStorageResult.Unavailable
         }
-        return result
+        lateinit var result: DiscoverPreferenceTransactionResult
+        return try {
+            dataStore.edit { storedPreferences ->
+                result = storedPreferences.toDomain().apply(actions)
+                if (result.changed) storedPreferences.write(result.preferences)
+            }
+            DiscoverPreferencesStorageResult.Success(result)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: IOException) {
+            DiscoverPreferencesStorageResult.Unavailable
+        }
     }
 
-    override suspend fun replace(preferences: DiscoverPreferences) {
-        dataStore.edit { it.write(preferences) }
+    override suspend fun replace(
+        preferences: DiscoverPreferences,
+    ): DiscoverPreferencesStorageResult<Unit> {
+        if (_storageStatus.value == DiscoverPreferencesStorageStatus.Unavailable) {
+            return DiscoverPreferencesStorageResult.Unavailable
+        }
+        return try {
+            dataStore.edit { it.write(preferences) }
+            DiscoverPreferencesStorageResult.Success(Unit)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: IOException) {
+            DiscoverPreferencesStorageResult.Unavailable
+        }
     }
 }
+
+private const val MILLIS_PER_SECOND = 1_000L
+private const val MAX_RETRY_SECONDS = 30L
 
 private val presentationKey = stringPreferencesKey("discover_presentation")
 private val showArtistKey = booleanPreferencesKey("discover_show_artist")
