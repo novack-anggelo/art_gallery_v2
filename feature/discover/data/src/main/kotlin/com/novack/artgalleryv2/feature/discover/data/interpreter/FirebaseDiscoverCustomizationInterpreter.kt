@@ -13,6 +13,7 @@ import com.novack.artgalleryv2.feature.discover.domain.model.DiscoverPresentatio
 import com.novack.artgalleryv2.feature.discover.domain.model.ResizeDirection
 import java.io.IOException
 import kotlinx.coroutines.CancellationException
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -65,36 +66,38 @@ private fun decodeResponse(response: String): DiscoverCustomizationInterpretatio
 }
 
 private fun InterpretationAction.toDomainAction(): DiscoverPreferenceAction = when (type) {
-    "set_presentation" -> DiscoverPreferenceAction.SetPresentation(
+    DiscoverCustomizationContract.SET_PRESENTATION -> DiscoverPreferenceAction.SetPresentation(
         requireNotNull(presentation).toPresentation(),
     ).also { require(direction == null && field == null && visible == null) }
-    "resize_presentation" -> DiscoverPreferenceAction.ResizePresentation(
-        requireNotNull(direction).toResizeDirection(),
-    ).also { require(presentation == null && field == null && visible == null) }
-    "set_metadata_visibility" -> DiscoverPreferenceAction.SetMetadataVisibility(
-        field = requireNotNull(field).toMetadataField(),
-        visible = requireNotNull(visible),
-    ).also { require(presentation == null && direction == null) }
+    DiscoverCustomizationContract.RESIZE_PRESENTATION ->
+        DiscoverPreferenceAction.ResizePresentation(
+            requireNotNull(direction).toResizeDirection(),
+        ).also { require(presentation == null && field == null && visible == null) }
+    DiscoverCustomizationContract.SET_METADATA_VISIBILITY ->
+        DiscoverPreferenceAction.SetMetadataVisibility(
+            field = requireNotNull(field).toMetadataField(),
+            visible = requireNotNull(visible),
+        ).also { require(presentation == null && direction == null) }
     else -> error("Unsupported action type")
 }
 
 private fun String.toPresentation() = when (this) {
-    "large_grid" -> DiscoverPresentation.LargeGrid
-    "compact_grid" -> DiscoverPresentation.CompactGrid
-    "thumbnail_rows" -> DiscoverPresentation.ThumbnailRows
+    DiscoverCustomizationContract.LARGE_GRID -> DiscoverPresentation.LargeGrid
+    DiscoverCustomizationContract.COMPACT_GRID -> DiscoverPresentation.CompactGrid
+    DiscoverCustomizationContract.THUMBNAIL_ROWS -> DiscoverPresentation.ThumbnailRows
     else -> error("Unsupported presentation")
 }
 
 private fun String.toResizeDirection() = when (this) {
-    "smaller" -> ResizeDirection.Smaller
-    "larger" -> ResizeDirection.Larger
+    DiscoverCustomizationContract.SMALLER -> ResizeDirection.Smaller
+    DiscoverCustomizationContract.LARGER -> ResizeDirection.Larger
     else -> error("Unsupported resize direction")
 }
 
 private fun String.toMetadataField() = when (this) {
-    "artist" -> ArtworkMetadataField.Artist
-    "date" -> ArtworkMetadataField.Date
-    "medium" -> ArtworkMetadataField.Medium
+    DiscoverCustomizationContract.ARTIST -> ArtworkMetadataField.Artist
+    DiscoverCustomizationContract.DATE -> ArtworkMetadataField.Date
+    DiscoverCustomizationContract.MEDIUM -> ArtworkMetadataField.Medium
     else -> error("Unsupported metadata field")
 }
 
@@ -111,16 +114,23 @@ private fun rejected(reason: DiscoverCustomizationRejection) =
 
 @Serializable
 private data class InterpretationResponse(
+    @SerialName(DiscoverCustomizationContract.SUPPORTED)
     val supported: Boolean,
+    @SerialName(DiscoverCustomizationContract.ACTIONS)
     val actions: List<InterpretationAction>,
 )
 
 @Serializable
 private data class InterpretationAction(
+    @SerialName(DiscoverCustomizationContract.TYPE)
     val type: String,
+    @SerialName(DiscoverCustomizationContract.PRESENTATION)
     val presentation: String? = null,
+    @SerialName(DiscoverCustomizationContract.DIRECTION)
     val direction: String? = null,
+    @SerialName(DiscoverCustomizationContract.FIELD)
     val field: String? = null,
+    @SerialName(DiscoverCustomizationContract.VISIBLE)
     val visible: Boolean? = null,
 )
 
