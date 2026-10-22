@@ -4,7 +4,7 @@ Art Gallery is a portfolio Android app for discovering works from the Art Instit
 
 The app uses the public [Art Institute of Chicago API](https://api.artic.edu/docs/#introduction) and its [IIIF image service](https://api.artic.edu/docs/#iiif-image-api).
 
-> Status: The active milestone is LLM integration, starting with prompt-driven customization of Discover. The milestone plan is approved; each implementation feature still requires separate approval. Discover already supports adaptive columns and loading, error, empty, refresh, and pagination states. AI integration is not yet implemented. The remaining original roadmap is on hold.
+> Status: The active milestone is LLM integration, starting with prompt-driven customization of Discover. The milestone plan is approved; each implementation feature still requires separate approval. Discover supports adaptive presentation and persisted preferences, and its Firebase prompt interpreter is implemented. Prompt orchestration and UI are not yet user-facing. The remaining original roadmap is on hold.
 
 ## Development workflow
 
@@ -37,11 +37,14 @@ Implemented in the repository:
 - Discover preferences are stored locally with DataStore and exposed to the screen through `DiscoverViewModel`.
 - Preference actions can be reduced and persisted together as one atomic multi-action transaction.
 - A preference-change use case serializes operations and provides single-level undo plus an undoable reset; `DiscoverViewModel` exposes consolidated UI state and transient effects.
+- A provider-independent prompt interpreter contract validates prompts and returns only supported Discover preference actions or typed rejection reasons.
+- A Firebase AI Logic adapter requests structured JSON, validates every returned action, and maps provider failures without leaking Firebase into the domain.
+- `DiscoverViewModel` coordinates one prompt interpretation at a time and routes supported actions through the existing atomic preference transaction.
 - Compose instrumentation tests for header behavior and pull-to-refresh scenarios.
 
 These entries describe code present in the repository, not a completed quality gate. Historically, validation passed the debug build, local unit tests, lint, and instrumentation-test compilation. Instrumentation execution previously encountered a device installation permission restriction; a passing device test run has not been confirmed. The developer has confirmed that the current UI and pull-to-refresh behavior work manually. These historical results do not establish validation of later changes; each PR reports its own checks.
 
-The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase AI Logic, prompt-driven customization UI, and user-facing preference results are not yet implemented.
+The original roadmap reached implementation slice 3 (Discover). Adaptive columns are present; restoration verification remains pending. The detail data contract from slice 2 is still pending, and artwork clicks are not yet connected to a detail destination. Firebase prompt interpretation is implemented; prompt-driven customization UI and user-facing preference results are not yet implemented.
 
 The content grid now handles `loadState.append`: it shows a loading indicator at the end while another page loads, shows an inline error with Retry calling `artworks.retry()` if it fails, and removes the indicator when loading finishes or the collection ends. Existing artworks remain visible. Both footers span all grid columns.
 
